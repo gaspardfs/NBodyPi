@@ -6,6 +6,8 @@ from pygame.locals import *
 from Classes import *
 from Functions import *
 
+#Test
+
 # VARIABLES
 CameraMoveSpeed = 10
 CameraScrollSpeed = 0.15
