@@ -6,11 +6,13 @@ from pygame.locals import *
 from Classes import *
 from Functions import *
 
-#Test
+# Test
 
 # VARIABLES
+appDimensions = [600, 400]
+screen = Screen(appDimensions[0], appDimensions[1])
 CameraMoveSpeed = 10
-CameraScrollSpeed = 0.15
+CameraScrollSpeed = 300
 
 mainScreen = Screen(600, 400)
 
@@ -19,25 +21,27 @@ clock = pygame.time.Clock()
 background = pygame.Surface((1920, 1080))
 background.fill("gray")
 
+Bodies = []
 Renderer = []
 
 
 pygame.mouse.set_visible(1)
 pygame.display.set_caption("Simulation Gravitationelle (Q/Esc pour sortir)")
 
-sprite1 = Sprite("Sprites/PlanetRed.png", [20, 20])
+sprite1 = Body([0, 0], [0, 0], 1, "Sprites/PlanetRed.png")
 
-sprite2 = Sprite("Sprites/PlanetRed.png", [0, 400])
+sprite2 = Body([100, 0], [0, 0], 1, "Sprites/PlanetRed.png")
 
-sprite3 = Sprite("Sprites/PlanetRed.png", [400, 400])
+sprite3 = Body([300, 200], [0, 0], 1, "Sprites/PlanetRed.png")
 
-sprite4 = Sprite("Sprites/PlanetRed.png", [400, 0])
+sprite4 = Body([-200, 100], [0, 0], 1, "Sprites/PlanetRed.png")
 
 
 Renderer.append(sprite1)
 Renderer.append(sprite2)
 Renderer.append(sprite3)
 Renderer.append(sprite4)
+
 
 def EventHandler():
     for event in pygame.event.get():
@@ -47,19 +51,22 @@ def EventHandler():
             if event.key == pygame.K_ESCAPE or event.key == pygame.K_q:
                 pygame.quit()
         if event.type == pygame.MOUSEWHEEL:
-            mainScreen.camera.AddZoom(CameraScrollSpeed * math.sqrt(mainScreen.camera.scale) * event.y)
-            print(mainScreen.camera.scale)
+            mainScreen.camera.AddZoom(event.y * -CameraScrollSpeed)
 
-    #Keyboard movement
+    # Keyboard movement
     keys = pygame.key.get_pressed()
     if keys[K_w]:
-        mainScreen.camera.position[1] -= CameraMoveSpeed
+        mainScreen.camera.position[1] -= CameraMoveSpeed * \
+            mainScreen.camera.scale
     if keys[K_s]:
-        mainScreen.camera.position[1] += CameraMoveSpeed
+        mainScreen.camera.position[1] += CameraMoveSpeed * \
+            mainScreen.camera.scale
     if keys[K_a]:
-        mainScreen.camera.position[0] -= CameraMoveSpeed
+        mainScreen.camera.position[0] -= CameraMoveSpeed * \
+            mainScreen.camera.scale
     if keys[K_d]:
-        mainScreen.camera.position[0] += CameraMoveSpeed
+        mainScreen.camera.position[0] += CameraMoveSpeed * \
+            mainScreen.camera.scale
 
 
 # Main game loop
@@ -67,15 +74,12 @@ while True:
     clock.tick(60)
     mainScreen.screen.blit(background, (0, 0))
 
-
-    #position = pygame.mouse.get_pos()
-    #sprite1.position = position
-
-
-
     EventHandler()
+    # Bodies
+    for body in Bodies:
+        body.position += body.momentum
 
-    #Renderer
+    # Renderer
     for sprite in Renderer:
         sprite.draw(mainScreen)
 
