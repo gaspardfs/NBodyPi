@@ -8,19 +8,39 @@ import math
 
 class Screen():
     def __init__(self, width, height):
-        self.camera = Camera()
+        self.camera = Camera([width, height], [width, height])
         self.width = width
         self.height = height
         self.screen = pygame.display.set_mode((width, height))
 
 
 class Camera():
-    def __init__(self, position=[0, 0], scale=1):
+    def __init__(self, Dimensions, WorldDimensions, position=[0, 0]):
         self.position = position
-        self.scale = scale
+        # Width and height defines what range of the world positions is possible to be seen,
+        # therefore, the camera pixel position and the position of the bodies are completly independant
+        self.WorldDimensions = WorldDimensions  # In world coords
+        self.Dimensions = Dimensions  # In pixels
+        self.scale = 1
 
     def AddZoom(self, zoom):
-        self.scale = abs(self.scale + zoom)
+        effectif = self.WorldDimensions[0] + self.WorldDimensions[1]
+        dimensions = [self.WorldDimensions[0] +
+                      zoom / (self.WorldDimensions[0] / effectif), self.WorldDimensions[1] + zoom / (self.WorldDimensions[1] / effectif)]
+        if dimensions[0] < 0 or dimensions[1] < 0:
+            return None
+        self.WorldDimensions = dimensions
+        self.scale = self.WorldDimensions[0] / self.Dimensions[0]
+
+    def GetTransformFromCamera(self, position):
+        """Gets the position in pixels from the world position"""
+        center = [int(self.WorldDimensions[0] / 2),
+                  int(self.WorldDimensions[1] / 2)]
+        position = [position[0] - self.position[0] + center[0],
+                    position[1] - self.position[1] + center[1]]
+        scale = self.Dimensions[0] / self.WorldDimensions[0]
+        position = [int(position[0] * scale), int(position[1] * scale)]
+        return (position, scale)
 
 
 class Sprite():
@@ -39,27 +59,10 @@ class Sprite():
         w, h = self.image.get_width(), self.image.get_height()
         position = [self.position[0] - w / 2, self.position[1] - h / 2]
 
-        # Dessine le sprite relatif a la position de la camera
-        position = [position[0] - mainScreen.camera.position[0],
-                    position[1] - mainScreen.camera.position[1]]
+        position, scale = mainScreen.camera.GetTransformFromCamera(position)
         image = self.image
-        # Dessine le sprite relatif a l'echelle de la camera
-        '''
-        scale = (mainScreen.camera.scale**2 * self.image.get_width(), mainScreen.camera.scale**2 * self.image.get_height())
-        image = pygame.transform.scale(self.image, scale)
-        
-        signx, signy = 1, 1
-        if position[0] < 0:
-            signx = -1
-        if position[1] < 0:
-            signy = -1
-
-        positionx = position[0] + ((position[0] - mainScreen.width / 2))**2 / mainScreen.width * signx
-        positiony = position[1] + ((position[1] - mainScreen.height / 2))**2 / mainScreen.height * signy
-        position = [positionx, positiony]
-        print(position)
-        #position = [math.log(abs(mainScreen.width / 2 - position[0])) * signx + position[0], math.log(abs(mainScreen.height / 2 - position[1])) * signy  + position[1]]
-        '''
+        image = pygame.transform.scale(
+            self.image, [int(image.get_width() * scale), int(image.get_height() * scale)])
         mainScreen.screen.blit(image, tuple(position))
 
 
@@ -68,8 +71,9 @@ class Body():
         self.position = position
         self.momentum = momentum
         self.mass = mass
-        self.sprite = sprite
+        self.sprite = Sprite(sprite, position)
 
     def draw(self, mainScreen):
         if self.sprite != None:
+            self.sprite.position = self.position
             self.sprite.draw(mainScreen)
