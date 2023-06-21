@@ -67,7 +67,10 @@ def EventHandler():
     if keys[K_d]:
         mainScreen.camera.position[0] += CameraMoveSpeed * \
             mainScreen.camera.scale
-
+        
+body1 = Body([0, 0], [0, 0], 1, "Sprites/PlanetRed.png")
+body1.force(0.5, 20)
+Bodies.append(body1)
 
 # Main game loop
 while True:
@@ -77,10 +80,12 @@ while True:
     EventHandler()
     # Bodies
     for body in Bodies:
-        body.position += body.momentum
-
+        body.position = [body.position[0] + body.momentum[0], body.position[0] + body.momentum[0]]
+        body.draw(mainScreen)
+        
     # Renderer
     for sprite in Renderer:
         sprite.draw(mainScreen)
 
+    print(body1.position)
     pygame.display.update()
