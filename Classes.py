@@ -4,6 +4,8 @@
 import pygame
 from pygame.locals import *
 import math
+from math import cos
+from math import sin
 
 
 class Screen():
@@ -82,4 +84,4 @@ class Body():
         delta_momentum = force / self.mass
         vx = cos(v_angle) * 1 * delta_momentum # vx est égale au côté adjacent, 1 est égale à l'hypoténuse
         vy = sin(v_angle) * 1 * delta_momentum # vy est égale au côté opposé, 1 est égale à l'hypoténuse
-        self.momentum = [vx, vy]
+        self.momentum = [self.momentum[0] + vx, self.momentum[1] + vy]
