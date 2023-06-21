@@ -77,3 +77,9 @@ class Body():
         if self.sprite != None:
             self.sprite.position = self.position
             self.sprite.draw(mainScreen)
+
+    def force(self, force, v_angle):
+        delta_momentum = force / self.mass
+        vx = cos(v_angle) * 1 * delta_momentum # vx est égale au côté adjacent, 1 est égale à l'hypoténuse
+        vy = sin(v_angle) * 1 * delta_momentum # vy est égale au côté opposé, 1 est égale à l'hypoténuse
+        self.momentum = [vx, vy]
