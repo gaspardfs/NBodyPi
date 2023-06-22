@@ -5,6 +5,7 @@ import math
 from pygame.locals import *
 from Classes import *
 from Functions import *
+from Regles import LoiGravitation
 
 # Test
 
@@ -37,10 +38,10 @@ sprite3 = Body([300, 200], [0, 0], 1, "Sprites/PlanetRed.png")
 sprite4 = Body([-200, 100], [0, 0], 1, "Sprites/PlanetRed.png")
 
 
-Renderer.append(sprite1)
-Renderer.append(sprite2)
-Renderer.append(sprite3)
-Renderer.append(sprite4)
+Bodies.append(sprite1)
+Bodies.append(sprite2)
+Bodies.append(sprite3)
+Bodies.append(sprite4)
 
 
 def EventHandler():
@@ -56,36 +57,32 @@ def EventHandler():
     # Keyboard movement
     keys = pygame.key.get_pressed()
     if keys[K_w]:
-        mainScreen.camera.position[1] -= CameraMoveSpeed * \
-            mainScreen.camera.scale
+        mainScreen.camera.position[1] -= CameraMoveSpeed * mainScreen.camera.scale
     if keys[K_s]:
-        mainScreen.camera.position[1] += CameraMoveSpeed * \
-            mainScreen.camera.scale
+        mainScreen.camera.position[1] += CameraMoveSpeed * mainScreen.camera.scale
     if keys[K_a]:
-        mainScreen.camera.position[0] -= CameraMoveSpeed * \
-            mainScreen.camera.scale
+        mainScreen.camera.position[0] -= CameraMoveSpeed * mainScreen.camera.scale
     if keys[K_d]:
-        mainScreen.camera.position[0] += CameraMoveSpeed * \
-            mainScreen.camera.scale
-        
-body1 = Body([0, 0], [0, 0], 1, "Sprites/PlanetRed.png")
-body1.force(0.5, 20)
-Bodies.append(body1)
+        mainScreen.camera.position[0] += CameraMoveSpeed * mainScreen.camera.scale
 
+
+sprite1.apply_force(3, -1)
 # Main game loop
 while True:
     clock.tick(60)
-    mainScreen.screen.blit(background, (0, 0))
-
+    mainScreen.screen.blit(background, (0, -2))
     EventHandler()
     # Bodies
+    # Applies the law for all the bodies
+    bodies = LoiGravitation.apply(bodies)
     for body in Bodies:
-        body.position = [body.position[0] + body.momentum[0], body.position[0] + body.momentum[0]]
+        body.position = [body.position[0] + body.momentum[0], body.position[1] + body.momentum[1]]
         body.draw(mainScreen)
-        
+
+    # print(sprite1.position)
+
     # Renderer
     for sprite in Renderer:
         sprite.draw(mainScreen)
 
-    print(body1.position)
     pygame.display.update()
