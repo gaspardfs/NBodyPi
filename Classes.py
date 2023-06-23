@@ -4,11 +4,9 @@
 import pygame
 from pygame.locals import *
 import math
-from math import cos
-from math import sin
 
 
-class Screen():
+class Screen:
     def __init__(self, width, height):
         self.camera = Camera([width, height], [width, height])
         self.width = width
@@ -16,7 +14,7 @@ class Screen():
         self.screen = pygame.display.set_mode((width, height))
 
 
-class Camera():
+class Camera:
     def __init__(self, Dimensions, WorldDimensions, position=[0, 0]):
         self.position = position
         # Width and height defines what range of the world positions is possible to be seen,
@@ -27,8 +25,10 @@ class Camera():
 
     def AddZoom(self, zoom):
         effectif = self.WorldDimensions[0] + self.WorldDimensions[1]
-        dimensions = [self.WorldDimensions[0] +
-                      zoom / (self.WorldDimensions[0] / effectif), self.WorldDimensions[1] + zoom / (self.WorldDimensions[1] / effectif)]
+        dimensions = [
+            self.WorldDimensions[0] + zoom / (self.WorldDimensions[0] / effectif),
+            self.WorldDimensions[1] + zoom / (self.WorldDimensions[1] / effectif),
+        ]
         if dimensions[0] < 0 or dimensions[1] < 0:
             return None
         self.WorldDimensions = dimensions
@@ -36,17 +36,17 @@ class Camera():
 
     def GetTransformFromCamera(self, position):
         """Gets the position in pixels from the world position"""
-        center = [int(self.WorldDimensions[0] / 2),
-                  int(self.WorldDimensions[1] / 2)]
-        position = [position[0] - self.position[0] + center[0],
-                    position[1] - self.position[1] + center[1]]
+        center = [int(self.WorldDimensions[0] / 2), int(self.WorldDimensions[1] / 2)]
+        position = [
+            position[0] - self.position[0] + center[0],
+            position[1] - self.position[1] + center[1],
+        ]
         scale = self.Dimensions[0] / self.WorldDimensions[0]
         position = [int(position[0] * scale), int(position[1] * scale)]
         return (position, scale)
 
 
-class Sprite():
-
+class Sprite:
     def __init__(self, image, position=[0, 0]) -> None:
         self.image = pygame.image.load(image)
         # position is in the center of the image
@@ -54,7 +54,9 @@ class Sprite():
 
     def setScale(self, scale):
         self.image = pygame.transform.scale(
-            self.image, scale * (self.image.get_width() * 1.0, self.image.get_height() * 1.0))
+            self.image,
+            scale * (self.image.get_width() * 1.0, self.image.get_height() * 1.0),
+        )
 
     def draw(self, mainScreen):
         # Centre la position du sprite relatif à ses dimensions
@@ -64,11 +66,13 @@ class Sprite():
         position, scale = mainScreen.camera.GetTransformFromCamera(position)
         image = self.image
         image = pygame.transform.scale(
-            self.image, [int(image.get_width() * scale), int(image.get_height() * scale)])
+            self.image,
+            [int(image.get_width() * scale), int(image.get_height() * scale)],
+        )
         mainScreen.screen.blit(image, tuple(position))
 
 
-class Body():
+class Body:
     def __init__(self, position=[0, 0], momentum=[0, 0], mass=0, sprite=None):
         self.position = position
         self.momentum = momentum
@@ -80,8 +84,8 @@ class Body():
             self.sprite.position = self.position
             self.sprite.draw(mainScreen)
 
-    def force(self, force, v_angle):
+    def apply_force(self, force, v_angle):
         delta_momentum = force / self.mass
-        vx = cos(v_angle) * 1 * delta_momentum # vx est égale au côté adjacent, 1 est égale à l'hypoténuse
-        vy = sin(v_angle) * 1 * delta_momentum # vy est égale au côté opposé, 1 est égale à l'hypoténuse
-        self.momentum = [self.momentum[0] + vx, self.momentum[1] + vy]
+        vecteur = [math.cos(v_angle) * delta_momentum, math.sin(v_angle) * delta_momentum]
+
+        self.momentum = [self.momentum[0] + vecteur[0], self.momentum[1] + vecteur[1]]
