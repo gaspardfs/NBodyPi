@@ -7,6 +7,7 @@ from Classes import *
 from Functions import *
 from Regles import LoiGravitation
 import time
+import Trajectoires
 
 # VARIABLES
 appDimensions = [600, 400]
@@ -15,6 +16,8 @@ CameraMoveSpeed = 10
 CameraScrollSpeed = 300
 stepSize = 1000000000000000
 stepSpeed = 0.04 # makes a step every 0.2 seconds
+edition = True
+simulation = True
 
 mainScreen = Screen(600, 400)
 
@@ -69,7 +72,27 @@ def EventHandler():
 lastStep = time.time()
 #sprite1.apply_force(5, -3.14/2)
 # Main game loop
-while True:
+while edition == True:
+    clock.tick(60)
+    mainScreen.screen.blit(background, (0, -2))
+
+    EventHandler()
+
+    # print(sprite1.position)
+
+    # Body renderer
+    for body in Bodies:
+        body.draw(mainScreen)
+
+    # Renderer
+    for sprite in Renderer:
+        sprite.draw(mainScreen)
+
+
+    pygame.display.update()
+
+
+while simulation == True:
     clock.tick(60)
     mainScreen.screen.blit(background, (0, -2))
 
