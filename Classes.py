@@ -73,11 +73,12 @@ class Sprite:
 
 
 class Body:
-    def __init__(self, position=[0, 0], momentum=[0, 0], mass=0, sprite=None):
+    def __init__(self, position=[0, 0], momentum=[0, 0], mass=0, r = 255, g = 255, b = 255):
         self.position = position
         self.momentum = momentum
         self.mass = mass
-        self.sprite = Sprite(sprite, position)
+        self.sprite = Sprite("Sprites/PlanetRed.png", position).Color(r, g, b)
+
 
     def draw(self, mainScreen):
         if self.sprite != None:
@@ -87,5 +88,6 @@ class Body:
     def apply_force(self, force, v_angle):
         delta_momentum = force / self.mass
         vecteur = [math.cos(v_angle) * delta_momentum, math.sin(v_angle) * delta_momentum]
-
         self.momentum = [self.momentum[0] + vecteur[0], self.momentum[1] + vecteur[1]]
+
+    
