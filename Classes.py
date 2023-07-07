@@ -1,6 +1,6 @@
 # Classes utiles pour le jeu
 
-
+from PIL import ImageTk, Image
 import pygame
 from pygame.locals import *
 import math
@@ -70,15 +70,42 @@ class Sprite:
             [int(image.get_width() * scale), int(image.get_height() * scale)],
         )
         mainScreen.screen.blit(image, tuple(position))
+    
+#    def color(r=255, g=255, b=255):
+#        """ Entree : PIL.Image
+#        Sortie : PIL.Image """
+#        global image2
+#        image2 = image.copy()
+#        pimg1 = img1.load()
+#        pimg2 = img2.load()
+#        for i in range(image2.size[0]):
+#            for j in range(image2.size[1]):
+#                (r, v, b) = pimg1[i, j]
+#                pimg2[i, j] = (r, g, b)
+#        return image2
 
 
 class Body:
-    def __init__(self, position=[0, 0], momentum=[0, 0], mass=0, r = 255, g = 255, b = 255):
+    def __init__(self, position=[0, 0], momentum=[0, 0], mass=0, sprite=None, r1=255, g1=255, b1=255):
         self.position = position
         self.momentum = momentum
         self.mass = mass
-        self.sprite = Sprite("Sprites/PlanetRed.png", position).Color(r, g, b)
+#       self.sprite = Sprite("Sprites/PlanetRed.png", position)
+#       colored_img = pygame.image.load("Sprites/PlanetRed.png")
+        colored_img = Image.open("Sprites/PlanetRed.png")
+        colored_img.save("Sprites/colored_img.png")
+#       pygame.image.save(colored_img, "Sprites/colored_img")
+        colored_img1 = colored_img.copy()
+        pimg = colored_img.load()
+        pimg1 = colored_img1.load()
 
+        for i in range(colored_img1.size[0]):
+            for j in range(colored_img1.size[1]):
+                (r, g, b, a) = pimg[i, j]
+                pimg1[i, j] = (r1, g1, b1, a)
+        colored_img1.save("Sprites/colored_img1.png")
+        pygame.image.load("Sprites/colored_img1.png")
+        self.sprite = Sprite("Sprites/colored_img1.png", position)
 
     def draw(self, mainScreen):
         if self.sprite != None:

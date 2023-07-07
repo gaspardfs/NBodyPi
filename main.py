@@ -33,7 +33,7 @@ Renderer = []
 pygame.mouse.set_visible(1)
 pygame.display.set_caption("Simulation Gravitationelle (Q/Esc pour sortir)")
 
-sprite1 = Body([300, 300], [0, -5], 0.3, "Sprites/PlanetRed.png")
+sprite1 = Body([300, 300], [0, -5], 0.3, "Sprites/PlanetRed.png", 0, 0, 0)
 
 sprite2 = Body([-300, -300], [0, 5], 0.3, "Sprites/PlanetRed.png")
 
