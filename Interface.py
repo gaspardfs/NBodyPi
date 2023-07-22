@@ -7,7 +7,7 @@ def Interface(variable1):
 
     fenetre.geometry("800x600")
 
-    btn_regles = tk.Button(fenetre, text ="RÃ¨gles")
+    btn_regles = tk.Button(fenetre, text ="Règles")
     btn_regles.place(x = 350, y = 300)
 
     btn_edit = tk.Button(fenetre, text = "Edit")
