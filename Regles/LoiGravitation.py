@@ -1,0 +1,33 @@
+import sys
+sys.path.append("..")
+from NBodyPi.Classes import *
+import math
+
+G_constant = 0.000000000066743
+def apply(bodies : list, stepSize) -> list:
+    couples_appliques = []
+    for i in range(len(bodies)):
+        for j in range(len(bodies)):
+            if i == j:
+                continue
+            if not [j, i] in couples_appliques and not [i, j] in couples_appliques:
+                # Calcule la distance entre I et J
+                distance = math.sqrt(abs(bodies[i].position[0] - bodies[j].position[0])**2 + 
+                                    abs(bodies[i].position[1] - bodies[j].position[1])**2)
+                
+                # Calcule la force gravitationelle entre I et J
+                force = G_constant * ((bodies[i].mass * bodies[j].mass) / distance**2)
+                x = bodies[j].position[0] - bodies[i].position[0]
+                y = bodies[j].position[1] - bodies[i].position[1]
+                #print(math.tan(y / x))
+                vectorItoJ = math.atan(y / x)
+                x = bodies[i].position[0] - bodies[j].position[0]
+                y = bodies[i].position[1] - bodies[j].position[1]
+                vectorJtoI = vectorItoJ - math.pi
+                
+                #print(vectorItoJ)
+            
+                bodies[i].apply_force(force * stepSize, vectorJtoI)
+                bodies[j].apply_force(force * stepSize, vectorItoJ)
+                couples_appliques += [[i, j]]
+    return bodies

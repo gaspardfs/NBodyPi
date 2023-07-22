@@ -1,12 +1,12 @@
 # Classes utiles pour le jeu
 
-
+from PIL import ImageTk, Image
 import pygame
 from pygame.locals import *
 import math
 
 
-class Screen():
+class Screen:
     def __init__(self, width, height):
         self.camera = Camera([width, height], [width, height])
         self.width = width
@@ -14,7 +14,7 @@ class Screen():
         self.screen = pygame.display.set_mode((width, height))
 
 
-class Camera():
+class Camera:
     def __init__(self, Dimensions, WorldDimensions, position=[0, 0]):
         self.position = position
         # Width and height defines what range of the world positions is possible to be seen,
@@ -25,8 +25,10 @@ class Camera():
 
     def AddZoom(self, zoom):
         effectif = self.WorldDimensions[0] + self.WorldDimensions[1]
-        dimensions = [self.WorldDimensions[0] +
-                      zoom / (self.WorldDimensions[0] / effectif), self.WorldDimensions[1] + zoom / (self.WorldDimensions[1] / effectif)]
+        dimensions = [
+            self.WorldDimensions[0] + zoom / (self.WorldDimensions[0] / effectif),
+            self.WorldDimensions[1] + zoom / (self.WorldDimensions[1] / effectif),
+        ]
         if dimensions[0] < 0 or dimensions[1] < 0:
             return None
         self.WorldDimensions = dimensions
@@ -34,17 +36,17 @@ class Camera():
 
     def GetTransformFromCamera(self, position):
         """Gets the position in pixels from the world position"""
-        center = [int(self.WorldDimensions[0] / 2),
-                  int(self.WorldDimensions[1] / 2)]
-        position = [position[0] - self.position[0] + center[0],
-                    position[1] - self.position[1] + center[1]]
+        center = [int(self.WorldDimensions[0] / 2), int(self.WorldDimensions[1] / 2)]
+        position = [
+            position[0] - self.position[0] + center[0],
+            position[1] - self.position[1] + center[1],
+        ]
         scale = self.Dimensions[0] / self.WorldDimensions[0]
         position = [int(position[0] * scale), int(position[1] * scale)]
         return (position, scale)
 
 
-class Sprite():
-
+class Sprite:
     def __init__(self, image, position=[0, 0]) -> None:
         self.image = pygame.image.load(image)
         # position is in the center of the image
@@ -52,7 +54,9 @@ class Sprite():
 
     def setScale(self, scale):
         self.image = pygame.transform.scale(
-            self.image, scale * (self.image.get_width() * 1.0, self.image.get_height() * 1.0))
+            self.image,
+            scale * (self.image.get_width() * 1.0, self.image.get_height() * 1.0),
+        )
 
     def draw(self, mainScreen):
         # Centre la position du sprite relatif à ses dimensions
@@ -62,24 +66,55 @@ class Sprite():
         position, scale = mainScreen.camera.GetTransformFromCamera(position)
         image = self.image
         image = pygame.transform.scale(
-            self.image, [int(image.get_width() * scale), int(image.get_height() * scale)])
+            self.image,
+            [int(image.get_width() * scale), int(image.get_height() * scale)],
+        )
         mainScreen.screen.blit(image, tuple(position))
+    
+#    def color(r=255, g=255, b=255):
+#        """ Entree : PIL.Image
+#        Sortie : PIL.Image """
+#        global image2
+#        image2 = image.copy()
+#        pimg1 = img1.load()
+#        pimg2 = img2.load()
+#        for i in range(image2.size[0]):
+#            for j in range(image2.size[1]):
+#                (r, v, b) = pimg1[i, j]
+#                pimg2[i, j] = (r, g, b)
+#        return image2
 
 
-class Body():
-    def __init__(self, position=[0, 0], momentum=[0, 0], mass=0, sprite=None):
+class Body:
+    def __init__(self, position=[0, 0], momentum=[0, 0], mass=0, sprite=None, r1=255, g1=255, b1=255):
         self.position = position
         self.momentum = momentum
         self.mass = mass
-        self.sprite = Sprite(sprite, position)
+#       self.sprite = Sprite("Sprites/PlanetRed.png", position)
+#       colored_img = pygame.image.load("Sprites/PlanetRed.png")
+        colored_img = Image.open("Sprites/PlanetRed.png")
+        colored_img.save("Sprites/colored_img.png")
+#       pygame.image.save(colored_img, "Sprites/colored_img")
+        colored_img1 = colored_img.copy()
+        pimg = colored_img.load()
+        pimg1 = colored_img1.load()
+
+        for i in range(colored_img1.size[0]):
+            for j in range(colored_img1.size[1]):
+                (r, g, b, a) = pimg[i, j]
+                pimg1[i, j] = (r1, g1, b1, a)
+        colored_img1.save("Sprites/colored_img1.png")
+        pygame.image.load("Sprites/colored_img1.png")
+        self.sprite = Sprite("Sprites/colored_img1.png", position)
 
     def draw(self, mainScreen):
         if self.sprite != None:
             self.sprite.position = self.position
             self.sprite.draw(mainScreen)
 
-    def force(self, force, v_angle):
+    def apply_force(self, force, v_angle):
         delta_momentum = force / self.mass
-        vx = cos(v_angle) * 1 * delta_momentum # vx est égale au côté adjacent, 1 est égale à l'hypoténuse
-        vy = sin(v_angle) * 1 * delta_momentum # vy est égale au côté opposé, 1 est égale à l'hypoténuse
-        self.momentum = [vx, vy]
+        vecteur = [math.cos(v_angle) * delta_momentum, math.sin(v_angle) * delta_momentum]
+        self.momentum = [self.momentum[0] + vecteur[0], self.momentum[1] + vecteur[1]]
+
+    
