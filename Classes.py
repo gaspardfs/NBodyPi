@@ -90,11 +90,9 @@ class Body:
         self.position = position
         self.momentum = momentum
         self.mass = mass
-#       self.sprite = Sprite("Sprites/PlanetRed.png", position)
-#       colored_img = pygame.image.load("Sprites/PlanetRed.png")
+
         colored_img = Image.open("Sprites/PlanetRed.png")
         colored_img.save("Sprites/colored_img.png")
-#       pygame.image.save(colored_img, "Sprites/colored_img")
         colored_img1 = colored_img.copy()
         pimg = colored_img.load()
         pimg1 = colored_img1.load()
@@ -106,6 +104,10 @@ class Body:
         colored_img1.save("Sprites/colored_img1.png")
         pygame.image.load("Sprites/colored_img1.png")
         self.sprite = Sprite("Sprites/colored_img1.png", position)
+        self.r1 = r1
+        self.g1 = g1
+        self.b1 = b1
+        self.r1, self.g1, self.b1 = 0, 0, 0
 
     def draw(self, mainScreen):
         if self.sprite != None:
@@ -113,8 +115,15 @@ class Body:
             self.sprite.draw(mainScreen)
 
     def apply_force(self, force, v_angle):
+        #print(f"force {force}")
+        #print(f" before {self.momentum}")
         delta_momentum = force / self.mass
+        #print(f" deltamomentum {delta_momentum}")
+
+        #print(delta_momentum)
         vecteur = [math.cos(v_angle) * delta_momentum, math.sin(v_angle) * delta_momentum]
         self.momentum = [self.momentum[0] + vecteur[0], self.momentum[1] + vecteur[1]]
+        print(f" after {self.momentum}")
+
 
     

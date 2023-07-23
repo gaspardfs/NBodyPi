@@ -5,6 +5,8 @@ from Classes import *
 from Functions import *
 from Regles import LoiGravitation
 import time
+import Trajectoires
+import copy
 
 def Jeu(variable1):
     # VARIABLES DU JEU
@@ -15,13 +17,22 @@ def Jeu(variable1):
     CameraScrollSpeed = 300
 
     # SIMULATION
-    stepSize = 1000000000000000
-    stepSpeed = 0.04 # makes a step every 0.2 seconds
-    edition = False
-    simulation = True
+    stepSize = 100000000000
+    stepSpeed = 0.1 # makes a step every 0.2 seconds
+    etat = 2
+    # etat -1: arret, etat 0: nul, etat 1: edition, etat 2: simulation
+
+    # Edition
+    dessinerTrajectoires = True
+    nombreSteps = 1000
 
     # FIN DES VARIABLES / DEBUT PROGRAMME
     ######################################
+
+    # VARIABLES DU PROGRAMME
+    actualizerPositions = True
+    trajectoirePositions = None
+    couleurs = None
 
     mainScreen = Screen(appDimensions[0], appDimensions[1])
     pygame.init()
@@ -38,9 +49,10 @@ def Jeu(variable1):
     Renderer = []
 
 
-    sprite1 = Body([300, 300], [0, -5], 0.3, "Sprites/PlanetRed.png", 0, 0, 0)
+    sprite1 = Body([1, 1], [0, 0], 20999.0, "Sprites/PlanetRed.png", 255, 255, 255)
 
-    sprite2 = Body([-300, -300], [0, 5], 0.3, "Sprites/PlanetRed.png")
+    sprite2 = Body([0, -3000], [250, 0], 999.0, "Sprites/PlanetRed.png", 0, 0, 0)
+    #sprite1.sprite.setScale(10.0)
 
     #sprite3 = Body([0, 500], [20, 0], 1, "Sprites/PlanetRed.png")
 
@@ -77,18 +89,42 @@ def Jeu(variable1):
     lastStep = time.time()
 
     
-    # Main game loop
-    while edition == True:
+    # Main game loop: edition
+    while etat == 1:
         clock.tick(60)
         mainScreen.screen.blit(background, (0, -2))
 
         EventHandler()
 
+
         # print(sprite1.position)
+
+
+        # Trajectories Renderer
+        
+        if dessinerTrajectoires and actualizerPositions:
+            startTime = time.time()
+
+            # Copie les corps individuelement (sinon il ne marche pas)
+            nouveauBodies = []
+            for body in Bodies:
+                nouveauBodies += [copy.copy(body)]
+
+            trajectoirePositions = Trajectoires.calculerPositions(nouveauBodies, stepSize * 100, nombreSteps)
+            couleurs = [(body.r1, body.g1, body.b1) for body in Bodies]
+            actualizerPositions = False
+
+            print(f"{nombreSteps} positions calculees pour {len(Bodies)} corps en {time.time() - startTime}s.")
+        
+
+        if dessinerTrajectoires:
+            Trajectoires.dessinerLignes(trajectoirePositions, mainScreen, couleurs)
 
         # Body renderer
         for body in Bodies:
             body.draw(mainScreen)
+            
+
 
         # Renderer
         for sprite in Renderer:
@@ -98,7 +134,7 @@ def Jeu(variable1):
         pygame.display.update()
 
 
-    while simulation == True:
+    while etat == 2:
         clock.tick(60)
         mainScreen.screen.blit(background, (0, -2))
 
@@ -110,6 +146,9 @@ def Jeu(variable1):
             Bodies = LoiGravitation.apply(Bodies, stepSize)
             for body in Bodies:
                 body.position = [body.position[0] + body.momentum[0], body.position[1] + body.momentum[1]]
+                print(f"position is {body.position}")
+                print(f"momentum is {body.momentum}")
+
 
 
         EventHandler()

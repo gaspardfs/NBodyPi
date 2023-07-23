@@ -3,7 +3,12 @@ sys.path.append("..")
 from NBodyPi.Classes import *
 import math
 
-G_constant = 0.000000000066743
+# Original
+G_constant = 0.000000066743
+
+# Modifie
+#G_constant = 0.000000066743
+
 def apply(bodies : list, stepSize) -> list:
     couples_appliques = []
     for i in range(len(bodies)):
@@ -19,14 +24,13 @@ def apply(bodies : list, stepSize) -> list:
                 force = G_constant * ((bodies[i].mass * bodies[j].mass) / distance**2)
                 x = bodies[j].position[0] - bodies[i].position[0]
                 y = bodies[j].position[1] - bodies[i].position[1]
-                #print(math.tan(y / x))
-                vectorItoJ = math.atan(y / x)
-                x = bodies[i].position[0] - bodies[j].position[0]
-                y = bodies[i].position[1] - bodies[j].position[1]
+
+                vectorItoJ = math.atan(y / x) - math.pi
+
                 vectorJtoI = vectorItoJ - math.pi
-                
+
                 #print(vectorItoJ)
-            
+                
                 bodies[i].apply_force(force * stepSize, vectorJtoI)
                 bodies[j].apply_force(force * stepSize, vectorItoJ)
                 couples_appliques += [[i, j]]
