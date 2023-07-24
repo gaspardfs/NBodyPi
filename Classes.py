@@ -88,17 +88,18 @@ class Sprite:
 
 
 class Body:
-    def __init__(self, position=[0, 0], momentum=[0, 0], mass=0, sprite=None, r1=255, g1=255, b1=255):
+    def __init__(self, position=[0, 0], momentum=[0, 0], mass=0, sprite=None, r1=255, g1=255, b1=255, radius=32):
         self.position = position
         self.momentum = momentum
         self.mass = mass
+        self.radius = radius
 
+        # Traitement de couleur
         colored_img = Image.open("Sprites/PlanetRed.png")
         colored_img.save("Sprites/colored_img.png")
         colored_img1 = colored_img.copy()
         pimg = colored_img.load()
         pimg1 = colored_img1.load()
-
         for i in range(colored_img1.size[0]):
             for j in range(colored_img1.size[1]):
                 (r, g, b, a) = pimg[i, j]
@@ -107,6 +108,9 @@ class Body:
         pygame.image.load("Sprites/colored_img1.png")
         self.sprite = Sprite("Sprites/colored_img1.png", position)
         self.r1, self.g1, self.b1 = r1, g1, b1
+        
+        # Mets le sprite a l'echelle de son rayon
+        self.sprite.setScale(int(radius / 16))
 
     def draw(self, mainScreen):
         if self.sprite != None:

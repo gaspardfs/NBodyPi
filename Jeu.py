@@ -19,12 +19,13 @@ def Jeu(variable1):
     # SIMULATION
     stepSize = 100000000000
     stepSpeed = 0.05 # makes a step every 0.2 seconds
-    etat = 2
+    etat = 1
     # etat -1: arret, etat 0: nul, etat 1: edition, etat 2: simulation
+    colisions = True
 
     # Edition
     dessinerTrajectoires = True
-    nombreSteps = 150
+    nombreSteps = 1000
     multiplicateurTrajectoire = 1 # Le plus grand c'est, le moins precis la trajectoire devient mais augmente la quantite projetee
 
     # Statistique
@@ -53,23 +54,27 @@ def Jeu(variable1):
     Bodies = []
     Renderer = []
 
+    print(pygame.image.load("Sprites/PlanetRed.png").get_width())
 
-    sprite1 = Body([1, 1], [0, 0], 20999.0, "Sprites/PlanetRed.png", 66, 212, 245)
+    body1 = Body([1, 1], [0, 0], 20999.0, "Sprites/PlanetRed.png", 66, 212, 245, 100)
 
-    sprite2 = Body([0, -3000], [250, 0], 999.0, "Sprites/PlanetRed.png", 66, 245, 66)
-    sprite1.sprite.setScale(10.0)
-    sprite2.sprite.setScale(5.0)
+    body2 = Body([0, -3000], [250, 0], 999.0, "Sprites/PlanetRed.png", 66, 245, 66, 50)
 
+    body3 = Body([0, -7000], [100, 0], 999.0, "Sprites/PlanetRed.png", 245, 179, 66)
+    
+    body4 = Body([0, 7000], [100, 0], 500.0, "Sprites/PlanetRed.png", 168, 50, 155)
 
-    #sprite3 = Body([0, 500], [20, 0], 1, "Sprites/PlanetRed.png")
+    body5 = Body([0, 1500], [300, 0], 500.0, "Sprites/PlanetRed.png", 64, 50, 168)
 
-    #sprite4 = Body([-200, 100], [0, 0], 1, "Sprites/PlanetRed.png")
+    body6 = Body([0, 10000], [0, 50], 500.0, "Sprites/PlanetRed.png", 168, 166, 50)
 
+    Bodies.append(body1)
+    Bodies.append(body2)
+    Bodies.append(body3)
+    Bodies.append(body4)
+    Bodies.append(body5)
+    Bodies.append(body6)
 
-    Bodies.append(sprite1)
-    Bodies.append(sprite2)
-    #Bodies.append(sprite3)
-    #Bodies.append(sprite4)
 
 
     def EventHandler():
@@ -119,7 +124,6 @@ def Jeu(variable1):
 
             trajectoirePositions = Trajectoires.calculerPositions(nouveauBodies, stepSize * multiplicateurTrajectoire, nombreSteps)
             couleurs = [(body.r1, body.g1, body.b1) for body in Bodies]
-            print(couleurs)
             actualizerPositions = False
 
             print(f"{nombreSteps} positions calculees pour {len(Bodies)} corps en {time.time() - startTime}s.")
@@ -162,6 +166,8 @@ def Jeu(variable1):
             if updatePerformance:
                 updatePerformance = False
                 print(f"PERFORMANCE UPDATE: Temps de calcul = {time.time() - lastPerformanceUpdate}s, {(time.time() - lastPerformanceUpdate) / stepSpeed * 100}% de temps de calcul utilisee.")
+
+            
 
 
 
