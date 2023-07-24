@@ -123,7 +123,7 @@ class Body:
         #print(delta_momentum)
         vecteur = [math.cos(v_angle) * delta_momentum, math.sin(v_angle) * delta_momentum]
         self.momentum = [self.momentum[0] + vecteur[0], self.momentum[1] + vecteur[1]]
-        print(f" after {self.momentum}")
+        #print(f" after {self.momentum}")
 
 
     

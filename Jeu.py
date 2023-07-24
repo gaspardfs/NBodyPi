@@ -19,12 +19,14 @@ def Jeu(variable1):
     # SIMULATION
     stepSize = 100000000000
     stepSpeed = 0.1 # makes a step every 0.2 seconds
-    etat = 2
+    etat = 1
     # etat -1: arret, etat 0: nul, etat 1: edition, etat 2: simulation
 
     # Edition
     dessinerTrajectoires = True
     nombreSteps = 1000
+    multiplicateurTrajectoire = 1 # Le plus grand c'est, le moins precis la trajectoire devient mais augmente la quantite projetee
+
 
     # FIN DES VARIABLES / DEBUT PROGRAMME
     ######################################
@@ -110,7 +112,7 @@ def Jeu(variable1):
             for body in Bodies:
                 nouveauBodies += [copy.copy(body)]
 
-            trajectoirePositions = Trajectoires.calculerPositions(nouveauBodies, stepSize * 100, nombreSteps)
+            trajectoirePositions = Trajectoires.calculerPositions(nouveauBodies, stepSize * multiplicateurTrajectoire, nombreSteps)
             couleurs = [(body.r1, body.g1, body.b1) for body in Bodies]
             actualizerPositions = False
 
@@ -133,7 +135,6 @@ def Jeu(variable1):
 
         pygame.display.update()
 
-
     while etat == 2:
         clock.tick(60)
         mainScreen.screen.blit(background, (0, -2))
@@ -146,8 +147,7 @@ def Jeu(variable1):
             Bodies = LoiGravitation.apply(Bodies, stepSize)
             for body in Bodies:
                 body.position = [body.position[0] + body.momentum[0], body.position[1] + body.momentum[1]]
-                print(f"position is {body.position}")
-                print(f"momentum is {body.momentum}")
+
 
 
 
