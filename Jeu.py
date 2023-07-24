@@ -27,6 +27,9 @@ def Jeu(variable1):
     nombreSteps = 150
     multiplicateurTrajectoire = 1 # Le plus grand c'est, le moins precis la trajectoire devient mais augmente la quantite projetee
 
+    # Statistique
+    intervaleDePerformanceUpdate = 10 # Temps en seconde entre evaluations de performance
+
 
     # FIN DES VARIABLES / DEBUT PROGRAMME
     ######################################
@@ -138,6 +141,9 @@ def Jeu(variable1):
 
         pygame.display.update()
 
+    lastPerformanceUpdate = 0
+    updatePerformance = True
+
     while etat == 2:
         clock.tick(60)
         mainScreen.screen.blit(background, (0, -2))
@@ -145,11 +151,17 @@ def Jeu(variable1):
         
         if time.time() - lastStep > stepSpeed:
             lastStep = time.time()
+            if time.time() - lastPerformanceUpdate > intervaleDePerformanceUpdate:
+                lastPerformanceUpdate = time.time()
+                updatePerformance = True
             # Bodies
             # Applies the law for all the bodies
             Bodies = LoiGravitation.apply(Bodies, stepSize)
             for body in Bodies:
                 body.position = [body.position[0] + body.momentum[0], body.position[1] + body.momentum[1]]
+            if updatePerformance:
+                updatePerformance = False
+                print(f"PERFORMANCE UPDATE: Temps de calcul = {time.time() - lastPerformanceUpdate}s, {(time.time() - lastPerformanceUpdate) / stepSpeed * 100}% de temps de calcul utilisee.")
 
 
 
