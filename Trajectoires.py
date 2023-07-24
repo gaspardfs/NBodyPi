@@ -39,7 +39,7 @@ def dessinerLignes(positions, mainScreen, couleursDesCorps):
             pos1, scale = mainScreen.camera.GetTransformFromCamera(pos1)
             pos2, scale = mainScreen.camera.GetTransformFromCamera(pos2)
             # scale n'est pas utilise
-            pygame.draw.line(mainScreen.screen, couleursDesCorps[bodyI], pos1, pos2, 1)
+            pygame.draw.line(mainScreen.screen, couleursDesCorps[bodyI], pos1, pos2, 2)
 
 
 

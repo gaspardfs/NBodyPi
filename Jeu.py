@@ -18,13 +18,13 @@ def Jeu(variable1):
 
     # SIMULATION
     stepSize = 100000000000
-    stepSpeed = 0.1 # makes a step every 0.2 seconds
-    etat = 1
+    stepSpeed = 0.05 # makes a step every 0.2 seconds
+    etat = 2
     # etat -1: arret, etat 0: nul, etat 1: edition, etat 2: simulation
 
     # Edition
     dessinerTrajectoires = True
-    nombreSteps = 1000
+    nombreSteps = 150
     multiplicateurTrajectoire = 1 # Le plus grand c'est, le moins precis la trajectoire devient mais augmente la quantite projetee
 
 
@@ -51,10 +51,12 @@ def Jeu(variable1):
     Renderer = []
 
 
-    sprite1 = Body([1, 1], [0, 0], 20999.0, "Sprites/PlanetRed.png", 255, 255, 255)
+    sprite1 = Body([1, 1], [0, 0], 20999.0, "Sprites/PlanetRed.png", 66, 212, 245)
 
-    sprite2 = Body([0, -3000], [250, 0], 999.0, "Sprites/PlanetRed.png", 0, 0, 0)
-    #sprite1.sprite.setScale(10.0)
+    sprite2 = Body([0, -3000], [250, 0], 999.0, "Sprites/PlanetRed.png", 66, 245, 66)
+    sprite1.sprite.setScale(10.0)
+    sprite2.sprite.setScale(5.0)
+
 
     #sprite3 = Body([0, 500], [20, 0], 1, "Sprites/PlanetRed.png")
 
@@ -114,6 +116,7 @@ def Jeu(variable1):
 
             trajectoirePositions = Trajectoires.calculerPositions(nouveauBodies, stepSize * multiplicateurTrajectoire, nombreSteps)
             couleurs = [(body.r1, body.g1, body.b1) for body in Bodies]
+            print(couleurs)
             actualizerPositions = False
 
             print(f"{nombreSteps} positions calculees pour {len(Bodies)} corps en {time.time() - startTime}s.")

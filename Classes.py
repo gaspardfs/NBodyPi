@@ -4,6 +4,8 @@ from PIL import ImageTk, Image
 import pygame
 from pygame.locals import *
 import math
+from matplotlib import pyplot as plt
+
 
 
 class Screen:
@@ -55,7 +57,7 @@ class Sprite:
     def setScale(self, scale):
         self.image = pygame.transform.scale(
             self.image,
-            scale * (self.image.get_width() * 1.0, self.image.get_height() * 1.0),
+            (self.image.get_width() * scale, self.image.get_height() * scale),
         )
 
     def draw(self, mainScreen):
@@ -104,10 +106,7 @@ class Body:
         colored_img1.save("Sprites/colored_img1.png")
         pygame.image.load("Sprites/colored_img1.png")
         self.sprite = Sprite("Sprites/colored_img1.png", position)
-        self.r1 = r1
-        self.g1 = g1
-        self.b1 = b1
-        self.r1, self.g1, self.b1 = 0, 0, 0
+        self.r1, self.g1, self.b1 = r1, g1, b1
 
     def draw(self, mainScreen):
         if self.sprite != None:
@@ -115,15 +114,8 @@ class Body:
             self.sprite.draw(mainScreen)
 
     def apply_force(self, force, v_angle):
-        #print(f"force {force}")
-        #print(f" before {self.momentum}")
         delta_momentum = force / self.mass
-        #print(f" deltamomentum {delta_momentum}")
-
-        #print(delta_momentum)
         vecteur = [math.cos(v_angle) * delta_momentum, math.sin(v_angle) * delta_momentum]
         self.momentum = [self.momentum[0] + vecteur[0], self.momentum[1] + vecteur[1]]
-        #print(f" after {self.momentum}")
-
 
     
