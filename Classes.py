@@ -4,7 +4,6 @@ from PIL import ImageTk, Image
 import pygame
 from pygame.locals import *
 import math
-from matplotlib import pyplot as plt
 
 
 
@@ -110,6 +109,9 @@ class Body:
         self.r1, self.g1, self.b1 = r1, g1, b1
         
         # Mets le sprite a l'echelle de son rayon
+        self.sprite.setScale(int(radius / 16))
+    
+    def setRadius(self, radius):
         self.sprite.setScale(int(radius / 16))
 
     def draw(self, mainScreen):

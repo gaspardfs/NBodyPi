@@ -7,6 +7,7 @@ from Regles import LoiGravitation
 import time
 import Trajectoires
 import copy
+import Collisions
 
 def Jeu(variable1):
     # VARIABLES DU JEU
@@ -19,9 +20,10 @@ def Jeu(variable1):
     # SIMULATION
     stepSize = 100000000000
     stepSpeed = 0.05 # makes a step every 0.2 seconds
-    etat = 1
+    etat = 2
     # etat -1: arret, etat 0: nul, etat 1: edition, etat 2: simulation
-    colisions = True
+    collisions = True
+    merge = True
 
     # Edition
     dessinerTrajectoires = True
@@ -54,18 +56,21 @@ def Jeu(variable1):
     Bodies = []
     Renderer = []
 
-    print(pygame.image.load("Sprites/PlanetRed.png").get_width())
-
+    '''
+    # Orbite
     body1 = Body([1, 1], [0, 0], 20999.0, "Sprites/PlanetRed.png", 66, 212, 245, 100)
-
     body2 = Body([0, -3000], [250, 0], 999.0, "Sprites/PlanetRed.png", 66, 245, 66, 50)
+    Bodies.append(body1)
+    Bodies.append(body2)
+    '''
 
-    body3 = Body([0, -7000], [100, 0], 999.0, "Sprites/PlanetRed.png", 245, 179, 66)
-    
+    '''
+    # Caos
+    body1 = Body([1, 1], [0, 0], 20999.0, "Sprites/PlanetRed.png", 66, 212, 245, 100)
+    body2 = Body([0, -3000], [250, 0], 999.0, "Sprites/PlanetRed.png", 66, 245, 66, 50)
+    body3 = Body([0, -7000], [100, 0], 999.0, "Sprites/PlanetRed.png", 245, 179, 66) 
     body4 = Body([0, 7000], [100, 0], 500.0, "Sprites/PlanetRed.png", 168, 50, 155)
-
     body5 = Body([0, 1500], [300, 0], 500.0, "Sprites/PlanetRed.png", 64, 50, 168)
-
     body6 = Body([0, 10000], [0, 50], 500.0, "Sprites/PlanetRed.png", 168, 166, 50)
 
     Bodies.append(body1)
@@ -74,9 +79,18 @@ def Jeu(variable1):
     Bodies.append(body4)
     Bodies.append(body5)
     Bodies.append(body6)
+    '''
+    
+    # Collisions
+    body1 = Body([1500, -1000], [15, 3], 1000.0, "Sprites/PlanetRed.png", 0, 0, 255, 75)
+    body2 = Body([-2500, 0], [10, 0], 3000.0, "Sprites/PlanetRed.png", 255, 0, 0, 150)
+    body3 = Body([-4500, -1000], [-15, 3], 1000.0, "Sprites/PlanetRed.png", 0, 255, 0, 75)
 
+    Bodies.append(body1)
+    Bodies.append(body2)
+    Bodies.append(body3)
 
-
+    
     def EventHandler():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -105,15 +119,9 @@ def Jeu(variable1):
     while etat == 1:
         clock.tick(60)
         mainScreen.screen.blit(background, (0, -2))
-
         EventHandler()
 
-
-        # print(sprite1.position)
-
-
-        # Trajectories Renderer
-        
+        # Trajectories Renderer       
         if dessinerTrajectoires and actualizerPositions:
             startTime = time.time()
 
@@ -128,20 +136,16 @@ def Jeu(variable1):
 
             print(f"{nombreSteps} positions calculees pour {len(Bodies)} corps en {time.time() - startTime}s.")
         
-
         if dessinerTrajectoires:
             Trajectoires.dessinerLignes(trajectoirePositions, mainScreen, couleurs)
 
         # Body renderer
         for body in Bodies:
             body.draw(mainScreen)
-            
-
 
         # Renderer
         for sprite in Renderer:
             sprite.draw(mainScreen)
-
 
         pygame.display.update()
 
@@ -167,14 +171,13 @@ def Jeu(variable1):
                 updatePerformance = False
                 print(f"PERFORMANCE UPDATE: Temps de calcul = {time.time() - lastPerformanceUpdate}s, {(time.time() - lastPerformanceUpdate) / stepSpeed * 100}% de temps de calcul utilisee.")
 
-            
-
-
+            # Sisteme de colision et merge
+            if collisions:
+                Bodies = Collisions.collisions(Bodies, merge)
 
 
         EventHandler()
 
-        # print(sprite1.position)
 
         # Body renderer
         for body in Bodies:
