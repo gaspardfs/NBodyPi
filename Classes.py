@@ -85,13 +85,10 @@ class Sprite:
 #                pimg2[i, j] = (r, g, b)
 #        return image2
 
+radiusMassMultiplier = 80 # Essentialy means the density of the planets
 
 class Body:
-    def __init__(self, position=[0, 0], momentum=[0, 0], mass=0, sprite=None, r1=255, g1=255, b1=255, radius=32):
-        self.position = position
-        self.momentum = momentum
-        self.mass = mass
-        self.radius = radius
+    def __init__(self, position=[0, 0], momentum=[0, 0], mass=0, sprite=None, r1=255, g1=255, b1=255):
 
         # Traitement de couleur
         colored_img = Image.open("Sprites/PlanetRed.png")
@@ -107,12 +104,21 @@ class Body:
         pygame.image.load("Sprites/colored_img1.png")
         self.sprite = Sprite("Sprites/colored_img1.png", position)
         self.r1, self.g1, self.b1 = r1, g1, b1
-        
-        # Mets le sprite a l'echelle de son rayon
-        self.sprite.setScale(int(radius / 16))
+
+        self.position = position
+        self.momentum = momentum
+        self.setMass(mass)
+
     
     def setRadius(self, radius):
+        print("Plus utilisee car c'est fait automatiquement.")
         self.sprite.setScale(int(radius / 16))
+        self.radius = radius
+
+    def setMass(self, mass):
+        self.mass = mass
+        self.radius = (mass * radiusMassMultiplier) ** (1. / 3) 
+        self.sprite.setScale(int(self.radius / 16))
 
     def draw(self, mainScreen):
         if self.sprite != None:

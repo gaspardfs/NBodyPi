@@ -12,6 +12,7 @@ def collisions(bodies : list, merge: bool):
                 # Calcule la distance entre I et J
                 distance = math.sqrt(abs(bodies[i].position[0] - bodies[j].position[0])**2 + 
                                     abs(bodies[i].position[1] - bodies[j].position[1])**2)
+                
                 if bodies[i].radius + bodies[j].radius > distance: # Si les deux corps se touchent
                     print(f"Colision entre body {i} et body {j}.")
                     if not merge:
@@ -51,12 +52,11 @@ def mergeCorps(bodies: list, collision: tuple) -> list:
     positiony =  bodies[index1].position[1] * ratio1 + bodies[index2].position[1] * ratio2
     position = [positionx, positiony]
 
-    radius = (bodies[index1].radius + bodies[index2].radius) / 2 # Temporaire apres faire rayon automatiquement
     r = int(bodies[index1].r1 * ratio1 + bodies[index2].r1 * ratio2)
     g = int(bodies[index1].g1 * ratio1 + bodies[index2].g1 * ratio2)
     b = int(bodies[index1].b1 * ratio1 + bodies[index2].b1 * ratio2)
 
-    nouvCorps = Body(position, momentum, massJointe, "Sprites/PlanetRed.png", r, g, b, radius)
+    nouvCorps = Body(position, momentum, massJointe, "Sprites/PlanetRed.png", r, g, b)
 
     # Enleve les anciens corps
     if index2 > index1:

@@ -58,16 +58,16 @@ def Jeu(variable1):
 
     '''
     # Orbite
-    body1 = Body([1, 1], [0, 0], 20999.0, "Sprites/PlanetRed.png", 66, 212, 245, 100)
-    body2 = Body([0, -3000], [250, 0], 999.0, "Sprites/PlanetRed.png", 66, 245, 66, 50)
+    body1 = Body([1, 1], [0, 0], 20999.0, "Sprites/PlanetRed.png", 66, 212, 245)
+    body2 = Body([0, -3000], [250, 0], 999.0, "Sprites/PlanetRed.png", 66, 245, 66)
     Bodies.append(body1)
     Bodies.append(body2)
     '''
 
     '''
     # Caos
-    body1 = Body([1, 1], [0, 0], 20999.0, "Sprites/PlanetRed.png", 66, 212, 245, 100)
-    body2 = Body([0, -3000], [250, 0], 999.0, "Sprites/PlanetRed.png", 66, 245, 66, 50)
+    body1 = Body([1, 1], [0, 0], 20999.0, "Sprites/PlanetRed.png", 66, 212, 245)
+    body2 = Body([0, -3000], [250, 0], 999.0, "Sprites/PlanetRed.png", 66, 245, 66)
     body3 = Body([0, -7000], [100, 0], 999.0, "Sprites/PlanetRed.png", 245, 179, 66) 
     body4 = Body([0, 7000], [100, 0], 500.0, "Sprites/PlanetRed.png", 168, 50, 155)
     body5 = Body([0, 1500], [300, 0], 500.0, "Sprites/PlanetRed.png", 64, 50, 168)
@@ -80,16 +80,16 @@ def Jeu(variable1):
     Bodies.append(body5)
     Bodies.append(body6)
     '''
-    
+    '''
     # Collisions
-    body1 = Body([1500, -1000], [15, 3], 1000.0, "Sprites/PlanetRed.png", 0, 0, 255, 75)
-    body2 = Body([-2500, 0], [10, 0], 3000.0, "Sprites/PlanetRed.png", 255, 0, 0, 150)
-    body3 = Body([-4500, -1000], [-15, 3], 1000.0, "Sprites/PlanetRed.png", 0, 255, 0, 75)
+    body1 = Body([1500, -1000], [15, 3], 1000.0, "Sprites/PlanetRed.png", 0, 0, 255)
+    body2 = Body([-2500, 0], [10, 0], 3000.0, "Sprites/PlanetRed.png", 255, 0, 0)
+    body3 = Body([-4500, -1000], [-15, 3], 1000.0, "Sprites/PlanetRed.png", 0, 255, 0)
 
     Bodies.append(body1)
     Bodies.append(body2)
     Bodies.append(body3)
-
+    '''
     
     def EventHandler():
         for event in pygame.event.get():
