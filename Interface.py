@@ -31,7 +31,7 @@ def Interface(variable1):
     
         label_guide = tk.Label(widget_regles, text = "")
         label_guide.config(text = guide)
-        label_guide.place(column = 0, row = 200)
+        label_guide.grid(column = 0, row = 200)
         
         widget_regles.grid(column = 0, row = 3)
         
