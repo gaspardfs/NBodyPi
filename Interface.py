@@ -21,23 +21,26 @@ def Interface(variable1):
 
 #Conséquence d'appuyer sur les buttons
     def appuyer_regles(event):
-        btn_base = tk.Button(fenetre, text = "base")
-        btn_base.grid(column = 0, row = 50)
+        
+        widget_regles = tk.Frame(fenetre)
+        
+        btn_base = tk.Button(widget_regles, text = "base")
+        btn_base.grid(column = 0, row = 20)
     
         guide = "hello"
     
-        label_guide = tk.Label(fenetre, text = "")
+        label_guide = tk.Label(widget_regles, text = "")
         label_guide.config(text = guide)
-        label_guide.place(x = 200, y = 200)
-
+        label_guide.place(column = 0, row = 200)
+        
+        widget_regles.grid(column = 0, row = 3)
+        
     def appuyer_edit(event):
     
         widget_edit = tk.Frame(fenetre)
     
         btn_base = tk.Button(widget_edit, text = "base") 
         btn_base.grid(column = 0, row = 20)
-    
-       
     
         label_pos = tk.Label(widget_edit, text = "Position")
         label_pos.grid(column = 0, row = 0)
@@ -62,14 +65,12 @@ def Interface(variable1):
         
     def appuyer_sim(event):
         
-        btn_base = tk.Button(fenetre, text = "base")
+        widget_sim = tk.Frame(fenetre)
+        
+        btn_base = tk.Button(widget_sim, text = "base")
         btn_base.grid(column = 5, row = 5)
         
-        guide = ""
-        
-        label_guide = tk.Label(fenetre, text = "")
-        label_guide.config(text = guide)
-        label_guide.place(x = 200, y = 200)
+        widget_sim.grid(column = 0, row = 3)
 
     btn_regles.bind("<Button-1>", appuyer_regles)
     btn_edit.bind("<Button-1>", appuyer_edit)
