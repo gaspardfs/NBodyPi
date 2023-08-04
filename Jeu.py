@@ -8,6 +8,7 @@ import time
 import Trajectoires
 import copy
 import Collisions
+import random
 
 def Jeu(variable1):
     # VARIABLES DU JEU
@@ -19,7 +20,7 @@ def Jeu(variable1):
 
     # SIMULATION
     stepSize = 100000000000
-    stepSpeed = 0.05 # makes a step every 0.2 seconds
+    stepSpeed = 0.2 # makes a step every 0.2 seconds
     etat = 2
     # etat -1: arret, etat 0: nul, etat 1: edition, etat 2: simulation
     collisions = True
@@ -27,7 +28,7 @@ def Jeu(variable1):
 
     # Edition
     dessinerTrajectoires = True
-    nombreSteps = 1000
+    nombreSteps = 500
     multiplicateurTrajectoire = 1 # Le plus grand c'est, le moins precis la trajectoire devient mais augmente la quantite projetee
 
     # Statistique
@@ -37,6 +38,7 @@ def Jeu(variable1):
     # FIN DES VARIABLES / DEBUT PROGRAMME
     ######################################
 
+    
     # VARIABLES DU PROGRAMME
     actualizerPositions = True
     trajectoirePositions = None
@@ -80,6 +82,7 @@ def Jeu(variable1):
     Bodies.append(body5)
     Bodies.append(body6)
     '''
+
     '''
     # Collisions
     body1 = Body([1500, -1000], [15, 3], 1000.0, "Sprites/PlanetRed.png", 0, 0, 255)
@@ -90,6 +93,18 @@ def Jeu(variable1):
     Bodies.append(body2)
     Bodies.append(body3)
     '''
+    
+    # Simulation debut systeme solaire
+    for i in range(100):
+        pos = [random.randint(-5000, 5000), random.randint(-5000, 5000)]
+        momentum = [random.randint(-300, 300), random.randint(-300, 300)]
+        r = random.randint(0, 255)
+        g = random.randint(0, 255)
+        b = random.randint(0, 255)
+        corps = Body(pos, momentum, 300, "Sprites/PlanetRed.png", r, g, b)
+        Bodies.append(corps)
+    
+
     
     def EventHandler():
         for event in pygame.event.get():
