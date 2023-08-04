@@ -19,8 +19,25 @@ def Interface(variable1):
     # champ_vitesse = tk.Entry(fenetre, width = 50)
     # champ_vitesse.grid(column = , row =)
 
+# Création des widgets globales
+
+    widget_regles = None  
+    widget_edit = None  
+    widget_sim = None  
+
 #Conséquence d'appuyer sur les buttons
     def appuyer_regles(event):
+        global widget_regles, widget_edit, widget_sim  
+        hide_frames()
+        try:
+            widget_sim.grid_forget()
+        except:
+            pass
+        
+        try:
+            widget_edit.grid_forget()
+        except:
+            pass
         
         widget_regles = tk.Frame(fenetre)
         
@@ -36,6 +53,19 @@ def Interface(variable1):
         widget_regles.grid(column = 0, row = 3)
         
     def appuyer_edit(event):
+        global widget_regles, widget_edit, widget_sim  
+        hide_frames()
+        
+        try:
+            widget_regles.grid_forget()
+        except:
+            pass
+        
+        try:
+            widget_sim.grid_forget()
+        except:
+            pass
+        
     
         widget_edit = tk.Frame(fenetre)
     
@@ -59,11 +89,23 @@ def Interface(variable1):
     
         entree_vitesse = tk.Entry(widget_edit, width = 50)
         entree_vitesse.grid(column = 1, row = 2)
-
+        
     
         widget_edit.grid(column = 0, row = 60, columnspan = 3)
         
     def appuyer_sim(event):
+        global widget_regles, widget_edit, widget_sim  
+        hide_frames()
+        
+        try:
+            widget_regles.grid_forget()
+        except:
+            pass
+        
+        try:
+            widget_edit.grid_forget()
+        except:
+            pass
         
         widget_sim = tk.Frame(fenetre)
         
@@ -71,6 +113,13 @@ def Interface(variable1):
         btn_base.grid(column = 5, row = 5)
         
         widget_sim.grid(column = 0, row = 3)
+        
+    def hide_frames():
+        nonlocal widget_regles, widget_edit, widget_sim
+        frames = [widget_regles, widget_edit, widget_sim]
+        for frame in frames:
+            if frame is not None:
+                frame.grid_forget()
 
     btn_regles.bind("<Button-1>", appuyer_regles)
     btn_edit.bind("<Button-1>", appuyer_edit)
