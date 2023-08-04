@@ -49,6 +49,7 @@ class Camera:
 
 class Sprite:
     def __init__(self, image, position=[0, 0]) -> None:
+        self.imagePath = image
         self.image = pygame.image.load(image)
         # position is in the center of the image
         self.position = position
@@ -58,6 +59,9 @@ class Sprite:
             self.image,
             (self.image.get_width() * scale, self.image.get_height() * scale),
         )
+        self.scale = self.image.get_width() * scale, self.image.get_height() * scale    
+
+        
 
     def draw(self, mainScreen):
         # Centre la position du sprite relatif à ses dimensions
@@ -85,7 +89,7 @@ class Sprite:
 #                pimg2[i, j] = (r, g, b)
 #        return image2
 
-radiusMassMultiplier = 80 # Essentialy means the density of the planets
+radiusMassMultiplier = 1500 # Essentialy means the density of the planets
 
 class Body:
     def __init__(self, position=[0, 0], momentum=[0, 0], mass=0, sprite=None, r1=255, g1=255, b1=255):
@@ -118,6 +122,23 @@ class Body:
     def setMass(self, mass):
         self.mass = mass
         self.radius = (mass * radiusMassMultiplier) ** (1. / 3) 
+        self.sprite.setScale(int(self.radius / 16))
+
+    def reloadSprite(self):
+        '''Recharge les images (Pour pouvoir sauver les images)'''
+        scale = self.sprite.scale
+        colored_img = Image.open("Sprites/PlanetRed.png")
+        colored_img.save("Sprites/colored_img.png")
+        colored_img1 = colored_img.copy()
+        pimg = colored_img.load()
+        pimg1 = colored_img1.load()
+        for i in range(colored_img1.size[0]):
+            for j in range(colored_img1.size[1]):
+                (r, g, b, a) = pimg[i, j]
+                pimg1[i, j] = (self.r1, self.g1, self.b1, a)
+        colored_img1.save("Sprites/colored_img1.png")
+        pygame.image.load("Sprites/colored_img1.png")
+        self.sprite = Sprite("Sprites/colored_img1.png", self.position)
         self.sprite.setScale(int(self.radius / 16))
 
     def draw(self, mainScreen):
