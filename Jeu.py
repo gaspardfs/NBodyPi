@@ -9,6 +9,7 @@ import Trajectoires
 import copy
 import Collisions
 import random
+import FonctionsPreset as Presets
 
 def Jeu(variable1):
     # VARIABLES DU JEU
@@ -51,60 +52,14 @@ def Jeu(variable1):
     background = pygame.Surface((1920, 1080))
     background.fill("gray")
     pygame.mouse.set_visible(1)
-    pygame.display.set_caption("Simulation Gravitationelle (Q/Esc pour sortir)")
+    pygame.display.set_caption("NBodyPi (Q/Esc pour sortir)")
 
 
     # LISTE DE RENDERIZATION ET SIMULATION
     Bodies = []
     Renderer = []
 
-    '''
-    # Orbite
-    body1 = Body([1, 1], [0, 0], 20999.0, "Sprites/PlanetRed.png", 66, 212, 245)
-    body2 = Body([0, -3000], [250, 0], 999.0, "Sprites/PlanetRed.png", 66, 245, 66)
-    Bodies.append(body1)
-    Bodies.append(body2)
-    '''
-
-    '''
-    # Caos
-    body1 = Body([1, 1], [0, 0], 20999.0, "Sprites/PlanetRed.png", 66, 212, 245)
-    body2 = Body([0, -3000], [250, 0], 999.0, "Sprites/PlanetRed.png", 66, 245, 66)
-    body3 = Body([0, -7000], [100, 0], 999.0, "Sprites/PlanetRed.png", 245, 179, 66) 
-    body4 = Body([0, 7000], [100, 0], 500.0, "Sprites/PlanetRed.png", 168, 50, 155)
-    body5 = Body([0, 1500], [300, 0], 500.0, "Sprites/PlanetRed.png", 64, 50, 168)
-    body6 = Body([0, 10000], [0, 50], 500.0, "Sprites/PlanetRed.png", 168, 166, 50)
-
-    Bodies.append(body1)
-    Bodies.append(body2)
-    Bodies.append(body3)
-    Bodies.append(body4)
-    Bodies.append(body5)
-    Bodies.append(body6)
-    '''
-
-    '''
-    # Collisions
-    body1 = Body([1500, -1000], [15, 3], 1000.0, "Sprites/PlanetRed.png", 0, 0, 255)
-    body2 = Body([-2500, 0], [10, 0], 3000.0, "Sprites/PlanetRed.png", 255, 0, 0)
-    body3 = Body([-4500, -1000], [-15, 3], 1000.0, "Sprites/PlanetRed.png", 0, 255, 0)
-
-    Bodies.append(body1)
-    Bodies.append(body2)
-    Bodies.append(body3)
-    '''
-    
-    # Simulation debut systeme solaire
-    for i in range(100):
-        pos = [random.randint(-5000, 5000), random.randint(-5000, 5000)]
-        momentum = [random.randint(-300, 300), random.randint(-300, 300)]
-        r = random.randint(0, 255)
-        g = random.randint(0, 255)
-        b = random.randint(0, 255)
-        corps = Body(pos, momentum, 300, "Sprites/PlanetRed.png", r, g, b)
-        Bodies.append(corps)
-    
-
+    Bodies = Presets.ChargerPreset("Presets/DebutSystemeSolaire_2")
     
     def EventHandler():
         for event in pygame.event.get():
