@@ -1,8 +1,10 @@
 import tkinter as tk
+import tkinter.filedialog as filed
 
-def Interface(variable1):
+def Interface(queue):
     fenetre = tk.Tk()
     fenetre.title("Home")
+    
 
     fenetre.geometry("400x400")
 
@@ -25,8 +27,35 @@ def Interface(variable1):
     widget_edit = None  
     widget_sim = None  
 
+# Multiprocessing
+
+    def multiprocessingIntake():
+            # Chaque element de queue est ue liste de 0: la valeur a changer et 1: la nouvelle valeur
+            while not queue.empty():
+                valeur = queue.get()
+                if valeur[0] == 0: etat = valeur[1]
+                elif valeur[0] == 1: pass
+                elif valeur[0] == 2: pass
+        
+    def envoyerValeurMultiprocessing(valeur, n):
+        queue.put([n, valeur])
+
 #Conséquence d'appuyer sur les buttons
+
+    def appuyer_chargerPreset(event):
+        directoire = filed.askopenfilename(defaultextension="/Presets")
+        if directoire != None:
+            envoyerValeurMultiprocessing(directoire, 1)
+
+    
+    def appuyer_sauvegarderPreset(event):
+        directoire = filed.asksaveasfile(defaultextension="")
+        if directoire != None:
+            envoyerValeurMultiprocessing(directoire.name, 2)
+        
+
     def appuyer_regles(event):
+        etat = 1
         global widget_regles, widget_edit, widget_sim  
         hide_frames()
         try:
@@ -53,6 +82,7 @@ def Interface(variable1):
         widget_regles.grid(column = 0, row = 3)
         
     def appuyer_edit(event):
+        etat = 1
         global widget_regles, widget_edit, widget_sim  
         hide_frames()
         
@@ -71,9 +101,18 @@ def Interface(variable1):
     
         btn_base = tk.Button(widget_edit, text = "base") 
         btn_base.grid(column = 0, row = 20)
+
+        btn_chargerPreset = tk.Button(widget_edit, text = "Charger preset") 
+        btn_chargerPreset.grid(column = 0, row = 21)
+        btn_chargerPreset.bind("<Button-1>", appuyer_chargerPreset)
+
+        btn_sauvegarderPreset = tk.Button(widget_edit, text = "Sauvegarder preset") 
+        btn_sauvegarderPreset.grid(column = 1, row = 21)
+        btn_sauvegarderPreset.bind("<Button-1>", appuyer_sauvegarderPreset)
+        
     
         label_pos = tk.Label(widget_edit, text = "Position")
-        label_pos.grid(column = 0, row = 0)
+        label_pos.grid(column = 0, row = 2)
     
         label_direction = tk.Label(widget_edit, text = "Direction")
         label_direction.grid(column = 0, row = 1)
@@ -113,6 +152,7 @@ def Interface(variable1):
         btn_base.grid(column = 5, row = 5)
         
         widget_sim.grid(column = 0, row = 3)
+    
         
     def hide_frames():
         nonlocal widget_regles, widget_edit, widget_sim

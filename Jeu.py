@@ -11,9 +11,11 @@ import Collisions
 import random
 import FonctionsPreset as Presets
 
-def Jeu(variable1):
+def Jeu(queue):
     # VARIABLES DU JEU
     appDimensions = [600, 400]
+    etat = 2
+    # etat -1: arret, etat 0: nul, etat 1: edition, etat 2: simulation
 
     # CAMERA
     CameraMoveSpeed = 10
@@ -22,8 +24,6 @@ def Jeu(variable1):
     # SIMULATION
     stepSize = 100000000000
     stepSpeed = 0.2 # makes a step every 0.2 seconds
-    etat = 2
-    # etat -1: arret, etat 0: nul, etat 1: edition, etat 2: simulation
     collisions = True
     merge = True
 
@@ -59,8 +59,6 @@ def Jeu(variable1):
     Bodies = []
     Renderer = []
 
-    Bodies = Presets.ChargerPreset("Presets/DebutSystemeSolaire_2")
-    
     def EventHandler():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -84,12 +82,28 @@ def Jeu(variable1):
 
     lastStep = time.time()
 
+    def multiprocessingIntake(etat, Bodies, actualizerPositions):
+        # Chaque element de queue est ue liste de 0: la valeur a changer et 1: la nouvelle valeur
+        while not queue.empty():
+            valeur = queue.get()
+            if valeur[0] == 0: etat = valeur[1]
+            elif valeur[0] == 1:
+                Bodies = Presets.ChargerPreset(valeur[1])
+                actualizerPositions = True
+            elif valeur[0] == 2: Presets.SauverPreset(valeur[1], Bodies)
+        return etat, Bodies, actualizerPositions
+            
+
+    def envoyerValeurMultiprocessing(valeur, n):
+        queue.put([n, valeur])
     
     # Main game loop: edition
     while etat == 1:
         clock.tick(60)
         mainScreen.screen.blit(background, (0, -2))
         EventHandler()
+        etat, Bodies, actualizerPositions = multiprocessingIntake(etat, Bodies, actualizerPositions)
+
 
         # Trajectories Renderer       
         if dessinerTrajectoires and actualizerPositions:
@@ -125,6 +139,7 @@ def Jeu(variable1):
     while etat == 2:
         clock.tick(60)
         mainScreen.screen.blit(background, (0, -2))
+        etat, Bodies, actualizerPositions = multiprocessingIntake(etat, Bodies, actualizerPositions)
 
         
         if time.time() - lastStep > stepSpeed:

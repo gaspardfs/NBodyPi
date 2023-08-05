@@ -19,22 +19,15 @@ def SauverPreset(directoire, Bodies) -> None:
         pickle.dump(nouvBodies, f)
 
 def ChargerPreset(directoire) -> list:
-    '''Retourne la liste Bodies'''
-    
-    '''
     try:
-        with open(directoire) as f:
-            data = pickle.load(f)
+        with open(directoire, "rb") as f:
+            startTime = time.time()
+            Bodies = pickle.load(f)
+            for body in Bodies:
+                body.reloadSprite()
+            print(f"Temps de chargement {time.time() - startTime}s.")
     except:
-        data = []
-        print("Erreur de chargement.")
-    return data
-    '''
-    with open(directoire, "rb") as f:
-        startTime = time.time()
-        Bodies = pickle.load(f)
-        for body in Bodies:
-            body.reloadSprite()
-        print(f"Temps de chargement {time.time() - startTime}s.")
+        Bodies = []
+        print("Erreur de chargement")
     return Bodies
     
