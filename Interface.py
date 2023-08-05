@@ -9,17 +9,22 @@ def Interface(queue):
     fenetre.geometry("400x400")
 
     #Création des bouttons
-    btn_regles = tk.Button(fenetre, text ="Règles")
+    btn_regles = tk.Button(fenetre, text ="Règles", width=18)
     btn_regles.grid(column = 0, row = 0)
 
-    btn_edit = tk.Button(fenetre, text = "Edit")
+    btn_edit = tk.Button(fenetre, text = "Edit", width=18)
     btn_edit.grid(column = 1, row = 0)
 
-    btn_sim = tk.Button(fenetre, text = "Sim")
+    btn_sim = tk.Button(fenetre, text = "Sim", width=18)
     btn_sim.grid(column = 2, row = 0)
 
     # champ_vitesse = tk.Entry(fenetre, width = 50)
     # champ_vitesse.grid(column = , row =)
+
+    etat = 2
+    steps = 0
+    stepSpeed = 0.2
+    pause = True
 
 # Création des widgets globales
 
@@ -30,12 +35,17 @@ def Interface(queue):
 # Multiprocessing
 
     def multiprocessingIntake():
-            # Chaque element de queue est ue liste de 0: la valeur a changer et 1: la nouvelle valeur
-            while not queue.empty():
-                valeur = queue.get()
-                if valeur[0] == 0: etat = valeur[1]
-                elif valeur[0] == 1: pass
-                elif valeur[0] == 2: pass
+        nonlocal etat, steps, stepSpeed
+        # Chaque element de queue est ue liste de 0: la valeur a changer et 1: la nouvelle valeur
+        while not queue.empty():
+            valeur = queue.get()
+            print(valeur[1])
+            if valeur[0] == 0: etat = valeur[1]
+            elif valeur[0] == 1: pass
+            elif valeur[0] == 2: pass
+            elif valeur[0] == 3: 
+                steps = valeur[1]
+            elif valeur[0] == 4: stepSpeed = valeur[1]
         
     def envoyerValeurMultiprocessing(valeur, n):
         queue.put([n, valeur])
@@ -47,13 +57,30 @@ def Interface(queue):
         if directoire != None:
             envoyerValeurMultiprocessing(directoire, 1)
 
-    
     def appuyer_sauvegarderPreset(event):
         directoire = filed.asksaveasfile(defaultextension="")
         if directoire != None:
             envoyerValeurMultiprocessing(directoire.name, 2)
-        
 
+    def actualiserSimulation(stepSpeedA):
+        try:
+            stepSpeedA = float(stepSpeedA)
+        except:
+            print("Valeur invalide!")
+            return None
+        print("Simulation actualisee.")
+        envoyerValeurMultiprocessing(stepSpeedA, 4)
+        stepSpeed = stepSpeedA
+
+    def pausePlay():
+        nonlocal pause
+        if pause:
+            pause = False
+            envoyerValeurMultiprocessing(False, 5)
+        else:
+            pause = True
+            envoyerValeurMultiprocessing(True, 5)
+    
     def appuyer_regles(event):
         etat = 1
         global widget_regles, widget_edit, widget_sim  
@@ -133,9 +160,9 @@ def Interface(queue):
         widget_edit.grid(column = 0, row = 60, columnspan = 3)
         
     def appuyer_sim(event):
-        global widget_regles, widget_edit, widget_sim  
-        hide_frames()
         
+        global widget_regles, widget_edit, widget_sim
+        hide_frames()
         try:
             widget_regles.grid_forget()
         except:
@@ -146,16 +173,35 @@ def Interface(queue):
         except:
             pass
         
-        widget_sim = tk.Frame(fenetre)
+        widget_sim = tk.Frame(fenetre, width = 18 * 3)
+        widget_sim.grid(row=1, column=0, columnspan = 3)
         
-        btn_base = tk.Button(widget_sim, text = "base")
-        btn_base.grid(column = 5, row = 5)
-        
-        widget_sim.grid(column = 0, row = 3)
+        #btn_base = tk.Button(widget_sim, text = "base")
+        #btn_base.grid(column = 0, row = 0)
+        labelStepSpeed = tk.Label(widget_sim, text="Vitesse des pas (s)")
+        entreeStepSpeed = tk.Entry(widget_sim)
+        entreeStepSpeed.insert(0, str(stepSpeed))
+        labelStepSpeed.grid(row = 1, column=0)
+        entreeStepSpeed.grid(row = 1, column=1)
+
+        btnActualiserValeurs = tk.Button(widget_sim, text="Actualiser simulation", background="green",
+                                          command= lambda: actualiserSimulation(entreeStepSpeed.get()))
+        btnActualiserValeurs.grid(row=2, column=1)
+
+        btnPause = tk.Button(widget_sim, text="Pause/Play", command= lambda: pausePlay())
+        btnPause.grid(row=3, column=0)
+        btnNouvEtape = tk.Button(widget_sim, text="+Etape", command= lambda: envoyerValeurMultiprocessing(True, 6))
+        btnNouvEtape.grid(row=3, column=1)
+
+
+        #btnActualiserValeurs.bind("<Button-1>", lambda event, stepSpeedA=float(entreeStepSpeed.get()), n=4: envoyerValeurMultiprocessingEvent(event, n, stepSpeedA))
     
         
     def hide_frames():
         nonlocal widget_regles, widget_edit, widget_sim
+
+        # actualise les valeurs du multiprocessing
+        multiprocessingIntake()
         frames = [widget_regles, widget_edit, widget_sim]
         for frame in frames:
             if frame is not None:

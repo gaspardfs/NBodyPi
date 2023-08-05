@@ -24,6 +24,9 @@ def Jeu(queue):
     # SIMULATION
     stepSize = 100000000000
     stepSpeed = 0.2 # makes a step every 0.2 seconds
+    stepCount = 0
+    newStep = False
+    pause = True
     collisions = True
     merge = True
 
@@ -82,7 +85,11 @@ def Jeu(queue):
 
     lastStep = time.time()
 
-    def multiprocessingIntake(etat, Bodies, actualizerPositions):
+    def envoyerValeurMultiprocessing(valeur, n):
+        queue.put([n, valeur])
+        
+    def multiprocessingIntake():
+        nonlocal etat, stepCount, stepSpeed, actualizerPositions, Bodies, pause, newStep
         # Chaque element de queue est ue liste de 0: la valeur a changer et 1: la nouvelle valeur
         while not queue.empty():
             valeur = queue.get()
@@ -91,18 +98,21 @@ def Jeu(queue):
                 Bodies = Presets.ChargerPreset(valeur[1])
                 actualizerPositions = True
             elif valeur[0] == 2: Presets.SauverPreset(valeur[1], Bodies)
-        return etat, Bodies, actualizerPositions
+            elif valeur[0] == 3: stepCount = valeur[1]
+            elif valeur[0] == 4: 
+                stepSpeed = valeur[1]
+                envoyerValeurMultiprocessing(stepSpeed, 4)
+            elif valeur[0] == 5: pause = valeur[1]
+            elif valeur[0] == 6: newStep = valeur[1]
             
-
-    def envoyerValeurMultiprocessing(valeur, n):
-        queue.put([n, valeur])
     
     # Main game loop: edition
     while etat == 1:
+        print(len(Bodies))
         clock.tick(60)
         mainScreen.screen.blit(background, (0, -2))
         EventHandler()
-        etat, Bodies, actualizerPositions = multiprocessingIntake(etat, Bodies, actualizerPositions)
+        multiprocessingIntake()
 
 
         # Trajectories Renderer       
@@ -139,10 +149,11 @@ def Jeu(queue):
     while etat == 2:
         clock.tick(60)
         mainScreen.screen.blit(background, (0, -2))
-        etat, Bodies, actualizerPositions = multiprocessingIntake(etat, Bodies, actualizerPositions)
+        multiprocessingIntake()
 
-        
-        if time.time() - lastStep > stepSpeed:
+        if (time.time() - lastStep > stepSpeed and not pause) or newStep:
+            newStep = False
+            stepCount += 1
             lastStep = time.time()
             if time.time() - lastPerformanceUpdate > intervaleDePerformanceUpdate:
                 lastPerformanceUpdate = time.time()
