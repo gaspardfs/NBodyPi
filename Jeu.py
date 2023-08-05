@@ -53,7 +53,7 @@ def Jeu(queue):
     clock = pygame.time.Clock()
 
     background = pygame.Surface((1920, 1080))
-    background.fill("gray")
+    background.fill("black")
     pygame.mouse.set_visible(1)
     pygame.display.set_caption("NBodyPi (Q/Esc pour sortir)")
 
