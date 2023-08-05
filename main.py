@@ -1,14 +1,13 @@
 import Jeu
 import Interface
 import multiprocessing
-
-
+ 
 if __name__ == "__main__":
-    #Cree les varaibles valeur
-    variable1 = multiprocessing.Value("i", 0)
+
+    queue = multiprocessing.Queue()
     
     #Mets les arguments en connexion (il faut avoir une , a la fin)
-    arguments = (variable1,)
+    arguments = (queue,)
 
     #Cree les process 
     ProcessInterface = multiprocessing.Process(target=Interface.Interface, args=arguments)
