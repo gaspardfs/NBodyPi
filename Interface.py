@@ -2,6 +2,7 @@ import tkinter as tk
 import tkinter.filedialog as filed
 from tkinter import ttk
 import Classes
+import copy
 
 def Interface(queueToInterface, queueToJeu):
     fenetre = tk.Tk()
@@ -31,6 +32,12 @@ def Interface(queueToInterface, queueToJeu):
     Bodies = []
     combo_box_bodies = None
     rentree_combo_body = tk.StringVar()
+    i = None
+
+    # display
+    displayPos = None
+    displayMom = None
+    displayMass = None
 
 # Création des widgets globales
 
@@ -39,6 +46,16 @@ def Interface(queueToInterface, queueToJeu):
     widget_sim = None  
 
 # Multiprocessing
+
+    def preparePickling(Bodies):
+        nouvBodies = []
+        for body in Bodies:
+            nouvBody = copy.copy(body)
+            nouvBody.sprite = copy.copy(body.sprite)
+            nouvBody.sprite.image = None
+            nouvBodies += [nouvBody]
+        return nouvBodies
+    
     def envoyerValeurMultiprocessing(valeur, n):
         queueToJeu.put([n, valeur])
         
@@ -62,7 +79,7 @@ def Interface(queueToInterface, queueToJeu):
     
     def envoyerListeBodies():
         nonlocal Bodies
-        envoyerValeurMultiprocessing(Bodies, 7)
+        envoyerValeurMultiprocessing(preparePickling(Bodies), 7)
 
 #Conséquence d'appuyer sur les buttons
 
@@ -99,21 +116,17 @@ def Interface(queueToInterface, queueToJeu):
             envoyerValeurMultiprocessing(True, 5)
     
     def selectionner_combo_box(event):
-        i = [str(elt) for elt in rentree_combo_body.get()][-1]
+        nonlocal i
+        i = int([str(elt) for elt in rentree_combo_body.get()][-1])
+        appuyer_edit(None)
 
-    def entree_position(event):
-        Bodies[i].position = [entree_x, entree_y]
+
     
-    def entree_momentum(event):
-        Bodies[i].momentum = [entree_v, entree_d]
-    
-    def entree_masse(event):
-        Bodies[i].setMass(entree_m)
-    
-    def appuyer_actualiser(event):
-        entree_position()
-        entree_momentum()
-        entree_masse()
+    def appuyer_actualiser(position, momentum, mass):
+        Bodies[i].position = [float(position[0]), float(position[1])]
+        Bodies[i].momentum =  [float(momentum[0]), float(momentum[1])]
+        Bodies[i].setMass(float(mass))
+        envoyerListeBodies()
 
     def appuyer_ajouter(event):
         nouveau_corps = Classes.Body()
@@ -197,23 +210,28 @@ def Interface(queueToInterface, queueToJeu):
 
         entree_pos_x = tk.Entry(widget_edit, width = 5)
         entree_pos_x.grid(column = 2, row = 5)
-        entree_x = entree_pos_x.get()
         
         entree_pos_y = tk.Entry(widget_edit, width = 5)
         entree_pos_y.grid(column = 6, row = 5)
-        entree_y = entree_pos_y.get()
     
-        entree_direction = tk.Entry(widget_edit, width = 10)
-        entree_direction.grid(column = 1, row = 6)
-        entree_d = entree_direction.get()
+        entree_momentum_x = tk.Entry(widget_edit, width = 10)
+        entree_momentum_x.grid(column = 1, row = 6)
     
-        entree_vitesse = tk.Entry(widget_edit, width = 10)
-        entree_vitesse.grid(column = 1, row = 7)
-        entree_v = entree_vitesse.get()
+        entree_momentum_y = tk.Entry(widget_edit, width = 10)
+        entree_momentum_y.grid(column = 1, row = 7)
         
-        entree_masse = tk.Entry(widget_edit, width = 10)
+        entree_masse = tk.Entry(widget_edit, width = 10, )
         entree_masse.grid(column = 1, row = 8)
-        entree_m = entree_masse.get()
+
+        if i != None:
+            combo_box_bodies.state = [Bodies[i].name, i]
+            entree_masse.insert(0, Bodies[i].mass)
+            entree_pos_x.insert(0, Bodies[i].position[0])
+            entree_pos_y.insert(0, Bodies[i].position[1])
+            entree_momentum_x.insert(0, Bodies[i].momentum[0])
+            entree_momentum_y.insert(0, Bodies[i].momentum[1])
+
+        
        
         btn_chargerPreset = tk.Button(widget_edit, text = "Charger preset") 
         btn_chargerPreset.grid(column = 0, row = 21)
@@ -223,9 +241,9 @@ def Interface(queueToInterface, queueToJeu):
         btn_sauvegarderPreset.grid(column = 1, row = 21)
         btn_sauvegarderPreset.bind("<Button-1>", appuyer_sauvegarderPreset)
         
-        btn_actualiser = tk.Button(widget_edit, text = "Actualiser") 
+        btn_actualiser = tk.Button(widget_edit, text = "Actualiser", command= lambda: 
+                                   appuyer_actualiser([entree_pos_x.get(), entree_pos_y.get()], [entree_momentum_x.get(), entree_momentum_y.get()], entree_masse.get())) 
         btn_actualiser.grid(column = 0, row = 30)
-        btn_actualiser.bind("<Button-1>", appuyer_actualiser)
        
         widget_edit.grid(column = 0, row = 60, columnspan = 3)
         

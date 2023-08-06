@@ -123,7 +123,6 @@ def Jeu(queueToInterface, queueToJeu):
 
         
         for commande in nouvellesCommandes:
-            print(commande)
             envoyerValeurMultiprocessing(commande[0], commande[1])
     
     lastPerformanceUpdate = 0
