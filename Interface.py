@@ -1,7 +1,8 @@
 import tkinter as tk
 import tkinter.filedialog as filed
+from tkinter import ttk
 
-def Interface(queue):
+def Interface(queueToInterface, queueToJeu):
     fenetre = tk.Tk()
     fenetre.title("Home")
     
@@ -25,6 +26,9 @@ def Interface(queue):
     steps = 0
     stepSpeed = 0.2
     pause = True
+    
+    Bodies = []
+    rentree_combo_body = None
 
 # Création des widgets globales
 
@@ -33,22 +37,30 @@ def Interface(queue):
     widget_sim = None  
 
 # Multiprocessing
-
+    def envoyerValeurMultiprocessing(valeur, n):
+        queueToJeu.put([n, valeur])
+        
     def multiprocessingIntake():
-        nonlocal etat, steps, stepSpeed
-        # Chaque element de queue est ue liste de 0: la valeur a changer et 1: la nouvelle valeur
-        while not queue.empty():
-            valeur = queue.get()
-            print(valeur[1])
+        nonlocal etat, steps, stepSpeed, Bodies
+        nouvellesCommandes = []
+        # Chaque element de queue est que liste de 0: la valeur a changer et 1: la nouvelle valeur
+        while not queueToInterface.empty():
+            valeur = queueToInterface.get()
             if valeur[0] == 0: etat = valeur[1]
             elif valeur[0] == 1: pass
             elif valeur[0] == 2: pass
             elif valeur[0] == 3: 
                 steps = valeur[1]
             elif valeur[0] == 4: stepSpeed = valeur[1]
-        
-    def envoyerValeurMultiprocessing(valeur, n):
-        queue.put([n, valeur])
+            elif valeur[0] == 7: 
+                Bodies = valeur[1]
+
+        for commande in nouvellesCommandes:
+            envoyerValeurMultiprocessing(commande[0], commande[1])
+    
+    def envoyerListeBodies():
+        nonlocal Bodies
+        envoyerValeurMultiprocessing(Bodies, 7)
 
 #Conséquence d'appuyer sur les buttons
 
@@ -81,9 +93,12 @@ def Interface(queue):
             pause = True
             envoyerValeurMultiprocessing(True, 5)
     
+    def selectionner_combo_box(event):
+        body_selectionne = rentree_combo_body.get()
+    
     def appuyer_regles(event):
         etat = 1
-        global widget_regles, widget_edit, widget_sim  
+        nonlocal widget_regles, widget_edit, widget_sim  
         hide_frames()
         try:
             widget_sim.grid_forget()
@@ -110,7 +125,7 @@ def Interface(queue):
         
     def appuyer_edit(event):
         etat = 1
-        global widget_regles, widget_edit, widget_sim  
+        nonlocal widget_regles, widget_edit, widget_sim, Bodies, rentree_combo_body
         hide_frames()
         
         try:
@@ -125,6 +140,9 @@ def Interface(queue):
         
     
         widget_edit = tk.Frame(fenetre)
+        
+        btn_ajouter= tk.Button(widget_edit, text = '+', width = 10)
+        btn_ajouter.grid(column = 0, row = 0)
     
         btn_base = tk.Button(widget_edit, text = "base") 
         btn_base.grid(column = 0, row = 20)
@@ -139,29 +157,33 @@ def Interface(queue):
         
     
         label_pos = tk.Label(widget_edit, text = "Position")
-        label_pos.grid(column = 0, row = 2)
+        label_pos.grid(column = 0, row = 5)
     
         label_direction = tk.Label(widget_edit, text = "Direction")
-        label_direction.grid(column = 0, row = 1)
+        label_direction.grid(column = 0, row = 6)
     
         label_vitesse = tk.Label(widget_edit, text = "Vitesse")
-        label_vitesse.grid(column = 0, row = 2)
+        label_vitesse.grid(column = 0, row = 7)
     
-        entree_pos = tk.Entry(widget_edit, width = 50)
-        entree_pos.grid(column = 1, row = 0)
+        entree_pos = tk.Entry(widget_edit, width = 10)
+        entree_pos.grid(column = 1, row = 5)
     
-        entree_direction = tk.Entry(widget_edit, width = 50)
-        entree_direction.grid(column = 1, row = 1)
+        entree_direction = tk.Entry(widget_edit, width = 10)
+        entree_direction.grid(column = 1, row = 6)
     
-        entree_vitesse = tk.Entry(widget_edit, width = 50)
-        entree_vitesse.grid(column = 1, row = 2)
-        
+        entree_vitesse = tk.Entry(widget_edit, width = 10)
+        entree_vitesse.grid(column = 1, row = 7)
     
+        combo_box_bodies = ttk.Combobox(widget_edit, textvariable = rentree_combo_body, values = Bodies, state = "readonly")
+        combo_box_bodies.bind('<<ComboboxSelected>>', selectionner_combo_box)
+        combo_box_bodies['values'] = (Bodies)
+        combo_box_bodies.grid(column = 0, row = 2)
+
         widget_edit.grid(column = 0, row = 60, columnspan = 3)
         
     def appuyer_sim(event):
         
-        global widget_regles, widget_edit, widget_sim
+        nonlocal widget_regles, widget_edit, widget_sim
         hide_frames()
         try:
             widget_regles.grid_forget()
@@ -196,6 +218,12 @@ def Interface(queue):
 
         #btnActualiserValeurs.bind("<Button-1>", lambda event, stepSpeedA=float(entreeStepSpeed.get()), n=4: envoyerValeurMultiprocessingEvent(event, n, stepSpeedA))
     
+    def appuyer_ajouter():
+        global combo_box_bodies
+        nouveau_corps = "Nouveau corps"  
+        Bodies.append(nouveau_corps)
+        combo_box_bodies['values'] = Bodies  
+        
         
     def hide_frames():
         nonlocal widget_regles, widget_edit, widget_sim
@@ -210,5 +238,6 @@ def Interface(queue):
     btn_regles.bind("<Button-1>", appuyer_regles)
     btn_edit.bind("<Button-1>", appuyer_edit)
     btn_sim.bind("<Button-1>", appuyer_sim)
+#     btn_ajouter.bind("<Button-1>", appuyer_ajouter)
 
     fenetre.mainloop()
