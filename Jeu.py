@@ -107,7 +107,6 @@ def Jeu(queueToInterface, queueToJeu):
             elif valeur[0] == 1:
                 Bodies = Presets.ChargerPreset(valeur[1])
                 nouvellesCommandes += [[preparePickling(Bodies), 7]]
-                actualizerPositions = True
             elif valeur[0] == 2: Presets.SauverPreset(valeur[1], Bodies)
             elif valeur[0] == 3: stepCount = valeur[1]
             elif valeur[0] == 4: 
