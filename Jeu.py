@@ -11,7 +11,7 @@ import Collisions
 import random
 import FonctionsPreset as Presets
 
-def Jeu(queue):
+def Jeu(queueToInterface, queueToJeu):
     # VARIABLES DU JEU
     appDimensions = [600, 400]
     etat = 2
@@ -86,24 +86,42 @@ def Jeu(queue):
     lastStep = time.time()
 
     def envoyerValeurMultiprocessing(valeur, n):
-        queue.put([n, valeur])
+        queueToInterface.put([n, valeur])
+        
+    def preparePickling(Bodies):
+        nouvBodies = []
+        for body in Bodies:
+            nouvBody = copy.copy(body)
+            nouvBody.sprite = copy.copy(body.sprite)
+            nouvBody.sprite.image = None
+            nouvBodies += [nouvBody]
+        return nouvBodies
         
     def multiprocessingIntake():
-        nonlocal etat, stepCount, stepSpeed, actualizerPositions, Bodies, pause, newStep
+        nonlocal etat, stepCount, stepSpeed, actualizerPositions, Bodies, pause, newStep, Bodies
+        nouvellesCommandes = []
         # Chaque element de queue est ue liste de 0: la valeur a changer et 1: la nouvelle valeur
-        while not queue.empty():
-            valeur = queue.get()
+        while not queueToJeu.empty():
+            valeur = queueToJeu.get()
             if valeur[0] == 0: etat = valeur[1]
             elif valeur[0] == 1:
                 Bodies = Presets.ChargerPreset(valeur[1])
+                nouvellesCommandes += [[preparePickling(Bodies), 7]]
                 actualizerPositions = True
             elif valeur[0] == 2: Presets.SauverPreset(valeur[1], Bodies)
             elif valeur[0] == 3: stepCount = valeur[1]
             elif valeur[0] == 4: 
                 stepSpeed = valeur[1]
-                envoyerValeurMultiprocessing(stepSpeed, 4)
+                nouvellesCommandes += [[stepSpeed, 4]]
             elif valeur[0] == 5: pause = valeur[1]
             elif valeur[0] == 6: newStep = valeur[1]
+            elif valeur[0] == 7: 
+                Bodies = valeur[1]
+                for body in Bodies:
+                    body.reloadSprite()
+        
+        for commande in nouvellesCommandes:
+            envoyerValeurMultiprocessing(commande[0], commande[1])
             
     
     # Main game loop: edition
