@@ -87,9 +87,10 @@ def Interface(queueToInterface, queueToJeu):
         directoire = filed.askopenfilename(defaultextension="/Presets")
         if directoire != None:
             envoyerValeurMultiprocessing(directoire, 1)
-            multiprocessingIntake()
             while queueToInterface.empty():
                 continue
+            multiprocessingIntake()
+            appuyer_edit(None)
             
 
     def appuyer_sauvegarderPreset(event):
@@ -165,6 +166,8 @@ def Interface(queueToInterface, queueToJeu):
     def appuyer_edit(event):
         nonlocal combo_box_bodies, rentree_combo_body
         etat = 1
+        envoyerValeurMultiprocessing(1, 0)
+        print("Etat edition.")
         nonlocal widget_regles, widget_edit, widget_sim, Bodies
         hide_frames()
         
