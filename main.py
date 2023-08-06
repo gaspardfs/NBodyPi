@@ -17,3 +17,9 @@ if __name__ == "__main__":
 
     ProcessInterface.start()
     ProcessJeu.start()
+
+    while True:
+        if not ProcessInterface.is_alive() or not ProcessJeu.is_alive():
+            ProcessJeu.kill()
+            ProcessInterface.kill()
+            exit(1)
