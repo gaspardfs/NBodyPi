@@ -101,6 +101,19 @@ def Interface(queueToInterface, queueToJeu):
     def selectionner_combo_box(event):
         i = [str(elt) for elt in rentree_combo_body.get()][-1]
 
+    def entree_position(event):
+        Bodies[i].position = [entree_x, entree_y]
+    
+    def entree_momentum(event):
+        Bodies[i].momentum = [entree_v, entree_d]
+    
+    def entree_masse(event):
+        Bodies[i].setMass(entree_m)
+    
+    def appuyer_actualiser(event):
+        entree_position()
+        entree_momentum()
+        entree_masse()
 
     def appuyer_ajouter(event):
         nouveau_corps = Classes.Body()
@@ -137,10 +150,9 @@ def Interface(queueToInterface, queueToJeu):
         widget_regles.grid(column = 0, row = 3)
         
     def appuyer_edit(event):
-        nonlocal widget_regles, widget_edit, widget_sim, Bodies, rentree_combo_body, etat
+        nonlocal combo_box_bodies, rentree_combo_body
         etat = 1
-        print("Etat edition.")
-        envoyerValeurMultiprocessing(1, 0)
+        nonlocal widget_regles, widget_edit, widget_sim, Bodies
         hide_frames()
         
         try:
@@ -159,10 +171,50 @@ def Interface(queueToInterface, queueToJeu):
         btn_ajouter= tk.Button(widget_edit, text = '+', width = 10)
         btn_ajouter.grid(column = 0, row = 0)
         btn_ajouter.bind("<Button-1>", appuyer_ajouter)
+        
+        combo_box_bodies = ttk.Combobox(widget_edit, textvariable = rentree_combo_body, values = Bodies, state = "readonly")
+        combo_box_bodies.bind('<<ComboboxSelected>>', selectionner_combo_box)
+        combo_box_bodies['values'] = tuple([[Bodies[i].name, i] for i in range(len(Bodies))])
+        combo_box_bodies.grid(column = 0, row = 2)
     
-        btn_base = tk.Button(widget_edit, text = "base") 
-        btn_base.grid(column = 0, row = 20)
+        label_pos = tk.Label(widget_edit, text = "Position")
+        label_pos.grid(column = 0, row = 5)
+        
+        label_x = tk.Label(widget_edit, text = "x")
+        label_x.grid(column = 1, row = 5)
+        
+        label_y = tk.Label(widget_edit, text = "y")
+        label_y.grid(column = 5, row = 5)
+    
+        label_direction = tk.Label(widget_edit, text = "Direction")
+        label_direction.grid(column = 0, row = 6)
+    
+        label_vitesse = tk.Label(widget_edit, text = "Vitesse")
+        label_vitesse.grid(column = 0, row = 7)
+        
+        label_masse = tk.Label(widget_edit, text = "Masse")
+        label_masse.grid(column = 0, row = 8)
 
+        entree_pos_x = tk.Entry(widget_edit, width = 5)
+        entree_pos_x.grid(column = 2, row = 5)
+        entree_x = entree_pos_x.get()
+        
+        entree_pos_y = tk.Entry(widget_edit, width = 5)
+        entree_pos_y.grid(column = 6, row = 5)
+        entree_y = entree_pos_y.get()
+    
+        entree_direction = tk.Entry(widget_edit, width = 10)
+        entree_direction.grid(column = 1, row = 6)
+        entree_d = entree_direction.get()
+    
+        entree_vitesse = tk.Entry(widget_edit, width = 10)
+        entree_vitesse.grid(column = 1, row = 7)
+        entree_v = entree_vitesse.get()
+        
+        entree_masse = tk.Entry(widget_edit, width = 10)
+        entree_masse.grid(column = 1, row = 8)
+        entree_m = entree_masse.get()
+       
         btn_chargerPreset = tk.Button(widget_edit, text = "Charger preset") 
         btn_chargerPreset.grid(column = 0, row = 21)
         btn_chargerPreset.bind("<Button-1>", appuyer_chargerPreset)
@@ -171,29 +223,10 @@ def Interface(queueToInterface, queueToJeu):
         btn_sauvegarderPreset.grid(column = 1, row = 21)
         btn_sauvegarderPreset.bind("<Button-1>", appuyer_sauvegarderPreset)
         
-    
-        label_pos = tk.Label(widget_edit, text = "Position")
-        label_pos.grid(column = 0, row = 5)
-    
-        label_direction = tk.Label(widget_edit, text = "Direction")
-        label_direction.grid(column = 0, row = 6)
-    
-        label_vitesse = tk.Label(widget_edit, text = "Vitesse")
-        label_vitesse.grid(column = 0, row = 7)
-    
-        entree_pos = tk.Entry(widget_edit, width = 10)
-        entree_pos.grid(column = 1, row = 5)
-    
-        entree_direction = tk.Entry(widget_edit, width = 10)
-        entree_direction.grid(column = 1, row = 6)
-
-        entree_vitesse = tk.Entry(widget_edit, width = 10)
-        entree_vitesse.grid(column = 1, row = 7)
-        combo_box_bodies = ttk.Combobox(widget_edit, textvariable = rentree_combo_body, state = "readonly")
-        combo_box_bodies['values'] = tuple([[Bodies[i].name, i] for i in range(len(Bodies))])
-        combo_box_bodies.bind('<<ComboboxSelected>>', selectionner_combo_box)
-        combo_box_bodies.grid(column = 0, row = 2)
-
+        btn_actualiser = tk.Button(widget_edit, text = "Actualiser") 
+        btn_actualiser.grid(column = 0, row = 30)
+        btn_actualiser.bind("<Button-1>", appuyer_actualiser)
+       
         widget_edit.grid(column = 0, row = 60, columnspan = 3)
         
     def appuyer_sim(event):
