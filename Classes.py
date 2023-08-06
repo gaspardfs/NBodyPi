@@ -55,11 +55,14 @@ class Sprite:
         self.position = position
 
     def setScale(self, scale):
-        self.image = pygame.transform.scale(
-            self.image,
-            (self.image.get_width() * scale, self.image.get_height() * scale),
-        )
-        self.scale = self.image.get_width() * scale, self.image.get_height() * scale    
+        if self.image != None:
+            self.image = pygame.transform.scale(
+                self.image,
+                (self.image.get_width() * scale, self.image.get_height() * scale),
+            )
+            self.scale = self.image.get_width() * scale, self.image.get_height() * scale 
+        else:
+            self.scale = 64 * scale, 64 * scale 
 
         
 
