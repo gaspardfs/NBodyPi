@@ -31,8 +31,8 @@ def Jeu(queueToInterface, queueToJeu):
     merge = True
 
     # Edition
-    dessinerTrajectoires = True
-    nombreSteps = 500
+    dessinerTrajectoires = False
+    nombreSteps = 1000
     multiplicateurTrajectoire = 1 # Le plus grand c'est, le moins precis la trajectoire devient mais augmente la quantite projetee
 
     # Statistique
@@ -99,6 +99,7 @@ def Jeu(queueToInterface, queueToJeu):
         
     def multiprocessingIntake():
         nonlocal etat, stepCount, stepSpeed, actualizerPositions, Bodies, pause, newStep, Bodies, actualizerPositions, dessinerTrajectoires
+        nonlocal nombreSteps
         nouvellesCommandes = []
         # Chaque element de queue est ue liste de 0: la valeur a changer et 1: la nouvelle valeur
         while not queueToJeu.empty():
@@ -118,8 +119,13 @@ def Jeu(queueToInterface, queueToJeu):
                 Bodies = valeur[1]
                 for body in Bodies:
                     body.reloadSprite()
+                actualizerPositions = True
+                dessinerTrajectoires = True
             elif valeur[0] == 8: actualizerPositions = True
-            elif valeur[0] == 9: dessinerTrajectoires = True
+            elif valeur[0] == 9: dessinerTrajectoires = valeur[1]
+            elif valeur[0] == 10: 
+                nombreSteps = valeur[1]
+                actualizerPositions = True
 
         
         for commande in nouvellesCommandes:
