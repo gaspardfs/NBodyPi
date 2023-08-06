@@ -1,6 +1,7 @@
 import tkinter as tk
 import tkinter.filedialog as filed
 from tkinter import ttk
+import Classes
 
 def Interface(queueToInterface, queueToJeu):
     fenetre = tk.Tk()
@@ -22,14 +23,14 @@ def Interface(queueToInterface, queueToJeu):
     # champ_vitesse = tk.Entry(fenetre, width = 50)
     # champ_vitesse.grid(column = , row =)
 
-    etat = 2
+    etat = 1
     steps = 0
     stepSpeed = 0.2
     pause = True
     
     Bodies = []
-    rentree_combo_body = None
     combo_box_bodies = None
+    rentree_combo_body = tk.StringVar()
 
 # Création des widgets globales
 
@@ -69,6 +70,10 @@ def Interface(queueToInterface, queueToJeu):
         directoire = filed.askopenfilename(defaultextension="/Presets")
         if directoire != None:
             envoyerValeurMultiprocessing(directoire, 1)
+            multiprocessingIntake()
+            while queueToInterface.empty():
+                continue
+            
 
     def appuyer_sauvegarderPreset(event):
         directoire = filed.asksaveasfile(defaultextension="")
@@ -81,7 +86,6 @@ def Interface(queueToInterface, queueToJeu):
         except:
             print("Valeur invalide!")
             return None
-        print("Simulation actualisee.")
         envoyerValeurMultiprocessing(stepSpeedA, 4)
         stepSpeed = stepSpeedA
 
@@ -95,11 +99,19 @@ def Interface(queueToInterface, queueToJeu):
             envoyerValeurMultiprocessing(True, 5)
     
     def selectionner_combo_box(event):
-        body_selectionne = rentree_combo_body.get()
+        i = [str(elt) for elt in rentree_combo_body.get()][-1]
+
+
+    def appuyer_ajouter(event):
+        nouveau_corps = Classes.Body()
+        Bodies.append(nouveau_corps)
+        appuyer_edit(None)  
     
     def appuyer_regles(event):
+        nonlocal widget_regles, widget_edit, widget_sim, etat
+        print("Etat edition.")
         etat = 1
-        nonlocal widget_regles, widget_edit, widget_sim  
+        envoyerValeurMultiprocessing(1, 0)
         hide_frames()
         try:
             widget_sim.grid_forget()
@@ -125,8 +137,10 @@ def Interface(queueToInterface, queueToJeu):
         widget_regles.grid(column = 0, row = 3)
         
     def appuyer_edit(event):
+        nonlocal widget_regles, widget_edit, widget_sim, Bodies, rentree_combo_body, etat
         etat = 1
-        nonlocal widget_regles, widget_edit, widget_sim, Bodies, rentree_combo_body
+        print("Etat edition.")
+        envoyerValeurMultiprocessing(1, 0)
         hide_frames()
         
         try:
@@ -172,20 +186,21 @@ def Interface(queueToInterface, queueToJeu):
     
         entree_direction = tk.Entry(widget_edit, width = 10)
         entree_direction.grid(column = 1, row = 6)
-    
+
         entree_vitesse = tk.Entry(widget_edit, width = 10)
         entree_vitesse.grid(column = 1, row = 7)
-    
-        combo_box_bodies = ttk.Combobox(widget_edit, textvariable = rentree_combo_body, values = Bodies, state = "readonly")
+        combo_box_bodies = ttk.Combobox(widget_edit, textvariable = rentree_combo_body, state = "readonly")
+        combo_box_bodies['values'] = tuple([[Bodies[i].name, i] for i in range(len(Bodies))])
         combo_box_bodies.bind('<<ComboboxSelected>>', selectionner_combo_box)
-        combo_box_bodies['values'] = (Bodies)
         combo_box_bodies.grid(column = 0, row = 2)
 
         widget_edit.grid(column = 0, row = 60, columnspan = 3)
         
     def appuyer_sim(event):
-        
-        nonlocal widget_regles, widget_edit, widget_sim
+        nonlocal widget_regles, widget_edit, widget_sim, etat
+        print("Etat simulation.")
+        etat = 2
+        envoyerValeurMultiprocessing(2, 0)
         hide_frames()
         try:
             widget_regles.grid_forget()
@@ -219,13 +234,8 @@ def Interface(queueToInterface, queueToJeu):
 
 
         #btnActualiserValeurs.bind("<Button-1>", lambda event, stepSpeedA=float(entreeStepSpeed.get()), n=4: envoyerValeurMultiprocessingEvent(event, n, stepSpeedA))
-    
-    def appuyer_ajouter():
-        global combo_box_bodies 
-        nouveau_corps = "Nouveau corps"  
-        Bodies.append(nouveau_corps)
-        combo_box_bodies['values'] = Bodies  
-  
+
+        
         
     def hide_frames():
         nonlocal widget_regles, widget_edit, widget_sim
@@ -240,6 +250,5 @@ def Interface(queueToInterface, queueToJeu):
     btn_regles.bind("<Button-1>", appuyer_regles)
     btn_edit.bind("<Button-1>", appuyer_edit)
     btn_sim.bind("<Button-1>", appuyer_sim)
-    
 
     fenetre.mainloop()

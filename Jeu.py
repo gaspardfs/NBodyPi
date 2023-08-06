@@ -98,7 +98,7 @@ def Jeu(queueToInterface, queueToJeu):
         return nouvBodies
         
     def multiprocessingIntake():
-        nonlocal etat, stepCount, stepSpeed, actualizerPositions, Bodies, pause, newStep, Bodies
+        nonlocal etat, stepCount, stepSpeed, actualizerPositions, Bodies, pause, newStep, Bodies, actualizerPositions, dessinerTrajectoires
         nouvellesCommandes = []
         # Chaque element de queue est ue liste de 0: la valeur a changer et 1: la nouvelle valeur
         while not queueToJeu.empty():
@@ -119,87 +119,91 @@ def Jeu(queueToInterface, queueToJeu):
                 Bodies = valeur[1]
                 for body in Bodies:
                     body.reloadSprite()
+            elif valeur[0] == 8: actualizerPositions = True
+            elif valeur[0] == 9: dessinerTrajectoires = True
+
         
         for commande in nouvellesCommandes:
+            print(commande)
             envoyerValeurMultiprocessing(commande[0], commande[1])
-            
     
-    # Main game loop: edition
-    while etat == 1:
-        print(len(Bodies))
-        clock.tick(60)
-        mainScreen.screen.blit(background, (0, -2))
-        EventHandler()
-        multiprocessingIntake()
-
-
-        # Trajectories Renderer       
-        if dessinerTrajectoires and actualizerPositions:
-            startTime = time.time()
-
-            # Copie les corps individuelement (sinon il ne marche pas)
-            nouveauBodies = []
-            for body in Bodies:
-                nouveauBodies += [copy.copy(body)]
-
-            trajectoirePositions = Trajectoires.calculerPositions(nouveauBodies, stepSize * multiplicateurTrajectoire, nombreSteps)
-            couleurs = [(body.r1, body.g1, body.b1) for body in Bodies]
-            actualizerPositions = False
-
-            print(f"{nombreSteps} positions calculees pour {len(Bodies)} corps en {time.time() - startTime}s.")
-        
-        if dessinerTrajectoires:
-            Trajectoires.dessinerLignes(trajectoirePositions, mainScreen, couleurs)
-
-        # Body renderer
-        for body in Bodies:
-            body.draw(mainScreen)
-
-        # Renderer
-        for sprite in Renderer:
-            sprite.draw(mainScreen)
-
-        pygame.display.update()
-
     lastPerformanceUpdate = 0
     updatePerformance = True
 
-    while etat == 2:
-        clock.tick(60)
-        mainScreen.screen.blit(background, (0, -2))
-        multiprocessingIntake()
+    while True:
+        # Main game loop: edition
+        if etat == 1:
+            clock.tick(60)
+            mainScreen.screen.blit(background, (0, -2))
+            EventHandler()
+            multiprocessingIntake()
 
-        if (time.time() - lastStep > stepSpeed and not pause) or newStep:
-            newStep = False
-            stepCount += 1
-            lastStep = time.time()
-            if time.time() - lastPerformanceUpdate > intervaleDePerformanceUpdate:
-                lastPerformanceUpdate = time.time()
-                updatePerformance = True
-            # Bodies
-            # Applies the law for all the bodies
-            Bodies = LoiGravitation.apply(Bodies, stepSize)
+
+            # Trajectories Renderer       
+            if dessinerTrajectoires and actualizerPositions:
+                startTime = time.time()
+
+                # Copie les corps individuelement (sinon il ne marche pas)
+                nouveauBodies = []
+                for body in Bodies:
+                    nouveauBodies += [copy.copy(body)]
+
+                trajectoirePositions = Trajectoires.calculerPositions(nouveauBodies, stepSize * multiplicateurTrajectoire, nombreSteps)
+                couleurs = [(body.r1, body.g1, body.b1) for body in Bodies]
+                actualizerPositions = False
+
+                print(f"{nombreSteps} positions calculees pour {len(Bodies)} corps en {time.time() - startTime}s.")
+            
+            if dessinerTrajectoires:
+                Trajectoires.dessinerLignes(trajectoirePositions, mainScreen, couleurs)
+
+            # Body renderer
             for body in Bodies:
-                body.position = [body.position[0] + body.momentum[0], body.position[1] + body.momentum[1]]
-            if updatePerformance:
-                updatePerformance = False
-                print(f"PERFORMANCE UPDATE: Temps de calcul = {time.time() - lastPerformanceUpdate}s, {(time.time() - lastPerformanceUpdate) / stepSpeed * 100}% de temps de calcul utilisee.")
+                body.draw(mainScreen)
 
-            # Sisteme de colision et merge
-            if collisions:
-                Bodies = Collisions.collisions(Bodies, merge)
+            # Renderer
+            for sprite in Renderer:
+                sprite.draw(mainScreen)
+
+            pygame.display.update()
+
+        # Main game loop: simulation
+        elif etat == 2:
+            clock.tick(60)
+            mainScreen.screen.blit(background, (0, -2))
+            multiprocessingIntake()
+
+            if (time.time() - lastStep > stepSpeed and not pause) or newStep:
+                newStep = False
+                stepCount += 1
+                lastStep = time.time()
+                if time.time() - lastPerformanceUpdate > intervaleDePerformanceUpdate:
+                    lastPerformanceUpdate = time.time()
+                    updatePerformance = True
+                # Bodies
+                # Applies the law for all the bodies
+                Bodies = LoiGravitation.apply(Bodies, stepSize)
+                for body in Bodies:
+                    body.position = [body.position[0] + body.momentum[0], body.position[1] + body.momentum[1]]
+                if updatePerformance:
+                    updatePerformance = False
+                    print(f"PERFORMANCE UPDATE: Temps de calcul = {time.time() - lastPerformanceUpdate}s, {(time.time() - lastPerformanceUpdate) / stepSpeed * 100}% de temps de calcul utilisee.")
+
+                # Sisteme de colision et merge
+                if collisions:
+                    Bodies = Collisions.collisions(Bodies, merge)
 
 
-        EventHandler()
+            EventHandler()
 
 
-        # Body renderer
-        for body in Bodies:
-            body.draw(mainScreen)
+            # Body renderer
+            for body in Bodies:
+                body.draw(mainScreen)
 
-        # Renderer
-        for sprite in Renderer:
-            sprite.draw(mainScreen)
+            # Renderer
+            for sprite in Renderer:
+                sprite.draw(mainScreen)
 
 
-        pygame.display.update()
+            pygame.display.update()
