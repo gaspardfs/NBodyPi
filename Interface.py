@@ -29,6 +29,7 @@ def Interface(queueToInterface, queueToJeu):
     
     Bodies = []
     rentree_combo_body = None
+    combo_box_bodies = None
 
 # Création des widgets globales
 
@@ -143,6 +144,7 @@ def Interface(queueToInterface, queueToJeu):
         
         btn_ajouter= tk.Button(widget_edit, text = '+', width = 10)
         btn_ajouter.grid(column = 0, row = 0)
+        btn_ajouter.bind("<Button-1>", appuyer_ajouter)
     
         btn_base = tk.Button(widget_edit, text = "base") 
         btn_base.grid(column = 0, row = 20)
@@ -219,11 +221,11 @@ def Interface(queueToInterface, queueToJeu):
         #btnActualiserValeurs.bind("<Button-1>", lambda event, stepSpeedA=float(entreeStepSpeed.get()), n=4: envoyerValeurMultiprocessingEvent(event, n, stepSpeedA))
     
     def appuyer_ajouter():
-        global combo_box_bodies
+        global combo_box_bodies 
         nouveau_corps = "Nouveau corps"  
         Bodies.append(nouveau_corps)
         combo_box_bodies['values'] = Bodies  
-        
+  
         
     def hide_frames():
         nonlocal widget_regles, widget_edit, widget_sim
@@ -238,6 +240,6 @@ def Interface(queueToInterface, queueToJeu):
     btn_regles.bind("<Button-1>", appuyer_regles)
     btn_edit.bind("<Button-1>", appuyer_edit)
     btn_sim.bind("<Button-1>", appuyer_sim)
-#     btn_ajouter.bind("<Button-1>", appuyer_ajouter)
+    
 
     fenetre.mainloop()
