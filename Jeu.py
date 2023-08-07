@@ -55,7 +55,7 @@ def Jeu(queueToInterface, queueToJeu):
     background = pygame.Surface((1920, 1080))
     background.fill("black")
     pygame.mouse.set_visible(1)
-    pygame.display.set_caption("NBodyPi (Q/Esc pour sortir)")
+    pygame.display.set_caption("Gravi Sim (Q/Esc pour sortir)")
 
 
     # LISTE DE RENDERIZATION ET SIMULATION
