@@ -25,7 +25,7 @@ def Interface(queueToInterface, queueToJeu):
     steps = 0
     stepSpeed = 0.2
     pause = True
-    nbEtapes = 0
+    nbEtapes = 1000
     
     Bodies = []
     combo_box_bodies = None

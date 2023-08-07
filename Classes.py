@@ -151,6 +151,8 @@ class Body:
             self.sprite.draw(mainScreen)
 
     def apply_force(self, force, v_angle):
+        if self.mass == 0:
+            return None
         delta_momentum = force / self.mass
         vecteur = [math.cos(v_angle) * delta_momentum, math.sin(v_angle) * delta_momentum]
         self.momentum = [self.momentum[0] + vecteur[0], self.momentum[1] + vecteur[1]]

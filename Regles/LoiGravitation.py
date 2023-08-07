@@ -21,7 +21,10 @@ def apply(bodies : list, stepSize) -> list:
                                     abs(bodies[i].position[1] - bodies[j].position[1])**2)
                 
                 # Calcule la force gravitationelle entre I et J
-                force = G_constant * ((bodies[i].mass * bodies[j].mass) / distance**2)
+                try:
+                    force = G_constant * ((bodies[i].mass * bodies[j].mass) / distance**2)
+                except:
+                    force = 0
                 x = bodies[j].position[0] - bodies[i].position[0]
                 y = bodies[j].position[1] - bodies[i].position[1]
 
