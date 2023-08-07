@@ -142,6 +142,7 @@ def Interface(queueToInterface, queueToJeu):
             Bodies[i].b1 = int(b)
             Bodies[i].name = name
 
+
             envoyerListeBodies()
         except:
             print("Valeur(s) invalide(s)!")
