@@ -12,13 +12,10 @@ def Interface(queueToInterface, queueToJeu):
     fenetre.geometry("650x300")
 
     #Création des bouttons
-    btn_regles = tk.Button(fenetre, text ="Règles", width=18)
-    btn_regles.grid(column = 0, row = 0)
-
-    btn_edit = tk.Button(fenetre, text = "Edit", width=18)
+    btn_edit = tk.Button(fenetre, text = "Edit", width=46)
     btn_edit.grid(column = 1, row = 0)
 
-    btn_sim = tk.Button(fenetre, text = "Sim", width=18)
+    btn_sim = tk.Button(fenetre, text = "Sim", width=46)
     btn_sim.grid(column = 2, row = 0)
 
     etat = 1
@@ -41,7 +38,6 @@ def Interface(queueToInterface, queueToJeu):
 
 # Création des widgets globales
 
-    widget_regles = None  
     widget_edit = None  
     widget_sim = None  
 
@@ -164,46 +160,13 @@ def Interface(queueToInterface, queueToJeu):
         except:
             print("Erreur de suprimement")
 
-    
-    def appuyer_regles(event):
-        nonlocal widget_regles, widget_edit, widget_sim, etat
-        etat = 1
-        envoyerValeurMultiprocessing(1, 0)
-        hide_frames()
-        try:
-            widget_sim.grid_forget()
-        except:
-            pass
-        
-        try:
-            widget_edit.grid_forget()
-        except:
-            pass
-        
-        widget_regles = tk.Frame(fenetre)
-        
-        btn_base = tk.Button(widget_regles, text = "base")
-        btn_base.grid(column = 0, row = 20)
-    
-        guide = "hello"
-    
-        label_guide = tk.Label(widget_regles, text = "")
-        label_guide.config(text = guide)
-        label_guide.grid(column = 0, row = 200)
-        
-        widget_regles.grid(column = 0, row = 3)
         
     def appuyer_edit(event):
         nonlocal combo_box_bodies, rentree_combo_body
         etat = 1
         envoyerValeurMultiprocessing(1, 0)
-        nonlocal widget_regles, widget_edit, widget_sim, Bodies
+        nonlocal widget_edit, widget_sim, Bodies
         hide_frames()
-        
-        try:
-            widget_regles.grid_forget()
-        except:
-            pass
         
         try:
             widget_sim.grid_forget()
@@ -332,15 +295,10 @@ def Interface(queueToInterface, queueToJeu):
         widget_edit.grid(column = 0, row = 60, columnspan = 3)
         
     def appuyer_sim(event):
-        nonlocal widget_regles, widget_edit, widget_sim, etat
-        print("Etat simulation.")
+        nonlocal widget_edit, widget_sim, etat
         etat = 2
         envoyerValeurMultiprocessing(2, 0)
         hide_frames()
-        try:
-            widget_regles.grid_forget()
-        except:
-            pass
         
         try:
             widget_edit.grid_forget()
@@ -373,16 +331,15 @@ def Interface(queueToInterface, queueToJeu):
         
         
     def hide_frames():
-        nonlocal widget_regles, widget_edit, widget_sim
+        nonlocal widget_edit, widget_sim
 
         # actualise les valeurs du multiprocessing
         multiprocessingIntake()
-        frames = [widget_regles, widget_edit, widget_sim]
+        frames = [widget_edit, widget_sim]
         for frame in frames:
             if frame is not None:
                 frame.grid_forget()
 
-    btn_regles.bind("<Button-1>", appuyer_regles)
     btn_edit.bind("<Button-1>", appuyer_edit)
     btn_sim.bind("<Button-1>", appuyer_sim)
 

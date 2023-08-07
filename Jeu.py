@@ -2,7 +2,6 @@ import pygame
 import sys
 from pygame.locals import *
 from Classes import *
-from Functions import *
 from Regles import LoiGravitation
 import time
 import Trajectoires
