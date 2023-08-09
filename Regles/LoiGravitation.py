@@ -1,6 +1,6 @@
 import sys
 sys.path.append("..")
-from NBodyPi.Classes import *
+from Classes import *
 import math
 
 # Original
