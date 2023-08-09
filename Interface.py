@@ -80,7 +80,7 @@ def Interface(queueToInterface, queueToJeu):
 #Conséquence d'appuyer sur les buttons
 
     def appuyer_chargerPreset(event):
-        directoire = filed.askopenfilename(defaultextension="/Presets")
+        directoire = filed.askopenfilename()
         if directoire != "":
             envoyerValeurMultiprocessing(directoire, 1)
             multiprocessingIntake()
