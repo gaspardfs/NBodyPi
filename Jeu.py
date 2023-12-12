@@ -9,6 +9,7 @@ import copy
 import Collisions
 import random
 import FonctionsPreset as Presets
+import Interface
 
 def Jeu(queueToInterface, queueToJeu):
     # VARIABLES DU JEU
@@ -61,7 +62,11 @@ def Jeu(queueToInterface, queueToJeu):
     Bodies = []
     Renderer = []
 
+    def envoyerValeurMultiprocessing(valeur, n):
+            queueToInterface.put([n, valeur])
+
     def EventHandler():
+        nonlocal pause
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
@@ -82,11 +87,16 @@ def Jeu(queueToInterface, queueToJeu):
         if keys[K_d] or keys[K_RIGHT]:
             mainScreen.camera.position[0] += CameraMoveSpeed * mainScreen.camera.scale
 
+        # Keyboard shortcuts
+        if keys[K_SPACE]:
+            if pause == pause:
+                pause = not pause
+            else:
+                pause = pause
+            
+            
     lastStep = time.time()
 
-    def envoyerValeurMultiprocessing(valeur, n):
-        queueToInterface.put([n, valeur])
-        
     def preparePickling(Bodies):
         nouvBodies = []
         for body in Bodies:
@@ -112,7 +122,7 @@ def Jeu(queueToInterface, queueToJeu):
             elif valeur[0] == 4: 
                 stepSpeed = valeur[1]
                 nouvellesCommandes += [[stepSpeed, 4]]
-            elif valeur[0] == 5: pause = valeur[1]
+            elif valeur[0] == 5: pause = not pause
             elif valeur[0] == 6: newStep = valeur[1]
             elif valeur[0] == 7: 
                 Bodies = valeur[1]
@@ -125,8 +135,7 @@ def Jeu(queueToInterface, queueToJeu):
             elif valeur[0] == 10: 
                 nombreSteps = valeur[1]
                 actualizerPositions = True
-
-        
+                
         for commande in nouvellesCommandes:
             envoyerValeurMultiprocessing(commande[0], commande[1])
     

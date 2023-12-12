@@ -79,6 +79,9 @@ def Interface(queueToInterface, queueToJeu):
 
 #Conséquence d'appuyer sur les buttons
 
+    def onKeyPress(event):
+        envoyerValeurMultiprocessing(5, True)
+
     def appuyer_chargerPreset(event):
         directoire = filed.askopenfilename()
         if directoire != "":
