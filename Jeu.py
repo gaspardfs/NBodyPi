@@ -69,7 +69,7 @@ def Jeu(queueToInterface, queueToJeu):
             queueToInterface.put([n, valeur])
 
     def EventHandler():
-        nonlocal dragging, lastMousePos, actualizerPositions
+        nonlocal dragging, lastMousPos, actualizerPositions
         nonlocal pause
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
