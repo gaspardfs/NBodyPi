@@ -77,6 +77,9 @@ class Sprite:
             self.image,
             [int(image.get_width() * scale), int(image.get_height() * scale)],
         )
+        self.realImage = image
+        self.realRadius = image.get_width() / 2
+        self.realPosition = position
         mainScreen.screen.blit(image, tuple(position))
     
 #    def color(r=255, g=255, b=255):
