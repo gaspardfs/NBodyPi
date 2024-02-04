@@ -98,7 +98,7 @@ class Sprite:
 radiusMassMultiplier = 1500 # Essentialy means the density of the planets
 
 class Body:
-    def __init__(self, position=[0, 0], momentum=[0, 0], mass=0, sprite=None, r1=255, g1=255, b1=255, name="Body"):
+    def __init__(self, position=[0, 0], momentum=[0, 0], mass=0, sprite=None, r1=255, g1=255, b1=255, name="Body", id = -1):
 
         # Traitement de couleur
         colored_img = Image.open("Sprites/PlanetRed.png")

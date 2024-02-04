@@ -25,6 +25,7 @@ def ChargerPreset(directoire) -> list:
             Bodies = pickle.load(f)
             for body in Bodies:
                 body.reloadSprite()
+                body.id = -1 # compatibilité avec ancien presets
             print(f"Temps de chargement {time.time() - startTime}s.")
     except:
         Bodies = []

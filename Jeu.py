@@ -179,14 +179,14 @@ def Jeu(queueToInterface, queueToJeu):
                 for body in Bodies:
                     nouveauBodies += [copy.copy(body)]
 
-                trajectoirePositions = Trajectoires.calculerPositions(nouveauBodies, stepSize * multiplicateurTrajectoire, nombreSteps)
-                couleurs = [(body.r1, body.g1, body.b1) for body in Bodies]
+                trajectoirePositions, couleurs, marquesCollisions = Trajectoires.calculerPositions(nouveauBodies, stepSize * multiplicateurTrajectoire, nombreSteps)
+                #couleurs = [(body.r1, body.g1, body.b1) for body in Bodies]
                 actualizerPositions = False
 
                 print(f"{nombreSteps} positions calculees pour {len(Bodies)} corps en {time.time() - startTime}s.")
             
             if dessinerTrajectoires:
-                Trajectoires.dessinerLignes(trajectoirePositions, mainScreen, couleurs)
+                Trajectoires.dessinerLignes(trajectoirePositions, mainScreen, couleurs, marquesCollisions)
 
             # Body renderer
             for body in Bodies:

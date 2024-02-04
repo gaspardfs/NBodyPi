@@ -1,5 +1,6 @@
 from Classes import *
 import math
+import uuid
 
 def collisions(bodies : list, merge: bool):
     """Renvoie bodies apres collisions"""
@@ -14,7 +15,6 @@ def collisions(bodies : list, merge: bool):
                                     abs(bodies[i].position[1] - bodies[j].position[1])**2)
                 
                 if bodies[i].radius + bodies[j].radius > distance: # Si les deux corps se touchent
-                    print(f"Colision entre body {i} et body {j}.")
                     if not merge:
                         detruireCorps(bodies, (i, j))
                     else:
@@ -56,8 +56,8 @@ def mergeCorps(bodies: list, collision: tuple) -> list:
     g = int(bodies[index1].g1 * ratio1 + bodies[index2].g1 * ratio2)
     b = int(bodies[index1].b1 * ratio1 + bodies[index2].b1 * ratio2)
 
-    nouvCorps = Body(position, momentum, massJointe, "Sprites/PlanetRed.png", r, g, b)
-
+    nouvCorps = Body(position, momentum, massJointe, "Sprites/PlanetRed.png", r, g, b, "Body", uuid.uuid4())
+    nouvCorps.id = uuid.uuid4()
     # Enleve les anciens corps
     if index2 > index1:
         bodies.pop(index2)
@@ -68,3 +68,4 @@ def mergeCorps(bodies: list, collision: tuple) -> list:
     
     bodies.append(nouvCorps)
     return bodies
+
