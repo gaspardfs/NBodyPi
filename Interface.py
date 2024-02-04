@@ -1,6 +1,7 @@
 import tkinter as tk
 import tkinter.filedialog as filed
 from tkinter import ttk
+from tkinter.colorchooser import askcolor
 import Classes
 import copy
 
@@ -9,7 +10,7 @@ def Interface(queueToInterface, queueToJeu):
     fenetre.title("Home")
     
 
-    fenetre.geometry("650x300")
+    fenetre.geometry("750x300")
 
     #Création des bouttons
     btn_edit = tk.Button(fenetre, text = "Edit", width=46)
@@ -40,6 +41,7 @@ def Interface(queueToInterface, queueToJeu):
 
     widget_edit = None  
     widget_sim = None  
+
 
 # Multiprocessing
 
@@ -164,6 +166,19 @@ def Interface(queueToInterface, queueToJeu):
         except:
             print("Erreur de suprimement")
 
+    def choisir_couleur():
+#        global couleur_hex
+#        couleur_hex = None
+        couleur = askcolor(title="Choisir une couleur")
+        tab_couleur = list(couleur)
+        couleur_hex = str(tab_couleur[1])
+        val_rgb = list(couleur[0])
+        if i != None:
+            Bodies[i].r1 = val_rgb[0]
+            Bodies[i].g1 = val_rgb[1]
+            Bodies[i].b1 = val_rgb[2]
+            appuyer_edit(None)
+        label_couleur1.config(bg=couleur_hex)
         
     def appuyer_edit(event):
         nonlocal combo_box_bodies, rentree_combo_body
@@ -216,7 +231,7 @@ def Interface(queueToInterface, queueToJeu):
         label_masse.grid(column = 0, row = 8)
         
         label_etapes = tk.Label(widget_edit, text = "Nb d'étapes")
-        label_etapes.grid(column = 0, row = 13)
+        label_etapes.grid(column = 0, row = 14)
 
         label_nom = tk.Label(widget_edit, text = "Nom")
         label_nom.grid(column = 0, row = 9)
@@ -225,9 +240,7 @@ def Interface(queueToInterface, queueToJeu):
         label_couleur.grid(column = 0, row = 10)
 
         label_config_trajectoires = tk.Label(widget_edit, text = "Configuration des trajectoires")
-        label_config_trajectoires.grid(column = 2, row = 12)
-
-
+        label_config_trajectoires.grid(column = 2, row = 13)
 
         entree_pos_x = tk.Entry(widget_edit, width = 10)
         entree_pos_x.grid(column = 2, row = 5)
@@ -247,6 +260,9 @@ def Interface(queueToInterface, queueToJeu):
         entree_nom = tk.Entry(widget_edit, width = 10, )
         entree_nom.grid(column = 1, row = 9)
 
+        btn_slc_couleurs = tk.Button(widget_edit, text="Choisir une couleur", width=15, command=choisir_couleur)
+        btn_slc_couleurs.grid(column = 4, row = 10)
+
         entree_r = tk.Entry(widget_edit, width = 10, )
         entree_r.grid(column = 1, row = 10)
 
@@ -256,7 +272,9 @@ def Interface(queueToInterface, queueToJeu):
         entree_b = tk.Entry(widget_edit, width = 10, )
         entree_b.grid(column = 3, row = 10)
 
-
+        global label_couleur1
+        label_couleur1 = tk.Label(widget_edit, bg=None, width=10)
+        label_couleur1.grid(column = 2, row = 11)
 
         if i != None:
             combo_box_bodies.state = [Bodies[i].name, i]
@@ -269,16 +287,18 @@ def Interface(queueToInterface, queueToJeu):
             entree_r.insert(0, Bodies[i].r1)
             entree_v.insert(0, Bodies[i].g1)
             entree_b.insert(0, Bodies[i].b1)
+            
+
         
         champ_etapes = tk.Entry(widget_edit, width=10)
         champ_etapes.insert(0, str(nbEtapes)) 
         champ_etapes.grid(column=1, row=13)
 
         btn_act_trajectoires = tk.Button(widget_edit, text="Actualiser trajectoires", command= lambda: actualiser_trajectoires(champ_etapes.get()))
-        btn_act_trajectoires.grid(column=2, row=13)
+        btn_act_trajectoires.grid(column=2, row=14)
 
         btn_montrer_trajectoires = tk.Button(widget_edit, text="Montrer/Cacher trajectoires")
-        btn_montrer_trajectoires.grid(column=3, row=13)
+        btn_montrer_trajectoires.grid(column=3, row=14)
         btn_montrer_trajectoires.bind("<Button-1>", montrer_cacher_trajectoires)
 
        
@@ -294,7 +314,7 @@ def Interface(queueToInterface, queueToJeu):
                                    appuyer_actualiser([entree_pos_x.get(), entree_pos_y.get()], 
                                                       [entree_momentum_x.get(), entree_momentum_y.get()], entree_masse.get(), entree_nom.get(),
                                                       entree_r.get(), entree_v.get(), entree_b.get())) 
-        btn_actualiser.grid(column = 2, row = 11)
+        btn_actualiser.grid(column = 2, row = 12)
        
         widget_edit.grid(column = 0, row = 60, columnspan = 3)
         
