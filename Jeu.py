@@ -82,14 +82,14 @@ def Jeu(queueToInterface, queueToJeu):
             if event.type == pygame.MOUSEWHEEL:
                 mainScreen.camera.AddZoom(event.y * -CameraScrollSpeed)
 
-            if pygame.mouse.get_pressed()[0] == True and dragging == None and not dragCheck:
+            if pygame.mouse.get_pressed()[0] == True and dragging == None and not dragCheck and etat == 1:
                 for Body in Bodies:
                     position = Body.sprite.realPosition
                     radius = Body.sprite.realRadius
                     rect = pygame.Rect(position[0], position[1], radius * 2, radius * 2)
                     try:
                         if rect.collidepoint(event.pos):
-                            dragging = Body.id
+                            dragging = Body.id 
                             lastMousPos = event.pos
                     except:
                         pass
