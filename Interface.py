@@ -4,6 +4,7 @@ from tkinter import ttk
 from tkinter.colorchooser import askcolor
 import Classes
 import copy
+import sys
 
 def Interface(queueToInterface, queueToJeu):
     fenetre = tk.Tk()
@@ -24,6 +25,7 @@ def Interface(queueToInterface, queueToJeu):
     stepSpeed = 0.2
     pause = True
     nbEtapes = 1000
+    reference = None
     
     Bodies = []
     combo_box_bodies = None
@@ -166,6 +168,14 @@ def Interface(queueToInterface, queueToJeu):
         except:
             print("Erreur de suprimement")
 
+    def appuyer_reference(event):
+        nonlocal i
+        try:
+            reference = Bodies[i]
+            envoyerValeurMultiprocessing(reference, 11)
+        except:
+            print("Erreur de référence", file=sys.stderr)
+
     def choisir_couleur():
 #        global couleur_hex
 #        couleur_hex = None
@@ -202,6 +212,10 @@ def Interface(queueToInterface, queueToJeu):
         btn_enlever= tk.Button(widget_edit, text = '-', width = 10)
         btn_enlever.bind("<Button-1>", appuyer_enlever)
         btn_enlever.grid(column = 3, row = 2)
+
+        btn_reference = tk.Button(widget_edit, text = "Utiliser référence", width = 10)
+        btn_reference.grid(column = 4, row = 2)
+        btn_reference.bind("<Button-1>", appuyer_reference)
 
         
         combo_box_bodies = ttk.Combobox(widget_edit, textvariable = rentree_combo_body, values = Bodies, state = "readonly")

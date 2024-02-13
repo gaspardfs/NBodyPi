@@ -2,6 +2,7 @@ import pickle
 import copy
 import time
 import pygame
+import uuid
 
 def SauverPreset(directoire, Bodies) -> None:
     # En premier il faut faire une copie a un deuxieme niveau de "Bodies"
@@ -25,7 +26,7 @@ def ChargerPreset(directoire) -> list:
             Bodies = pickle.load(f)
             for body in Bodies:
                 body.reloadSprite()
-                body.id = -1 # compatibilité avec ancien presets
+                body.id = uuid.uuid4() # compatibilité avec ancien presets
             print(f"Temps de chargement {time.time() - startTime}s.")
     except:
         Bodies = []

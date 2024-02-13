@@ -64,6 +64,7 @@ def Jeu(queueToInterface, queueToJeu):
     # LISTE DE RENDERIZATION ET SIMULATION
     Bodies = []
     Renderer = []
+    reference = None
 
     def envoyerValeurMultiprocessing(valeur, n):
             queueToInterface.put([n, valeur])
@@ -127,6 +128,7 @@ def Jeu(queueToInterface, queueToJeu):
         
     def multiprocessingIntake():
         nonlocal etat, stepCount, stepSpeed, actualizerPositions, Bodies, pause, newStep, Bodies, actualizerPositions, dessinerTrajectoires
+        nonlocal reference
         nonlocal nombreSteps
         nouvellesCommandes = []
         # Chaque element de queue est ue liste de 0: la valeur a changer et 1: la nouvelle valeur
@@ -154,6 +156,9 @@ def Jeu(queueToInterface, queueToJeu):
             elif valeur[0] == 10: 
                 nombreSteps = valeur[1]
                 actualizerPositions = True
+            elif valeur[0] == 11:
+                reference = valeur[1]
+        
                 
         for commande in nouvellesCommandes:
             envoyerValeurMultiprocessing(commande[0], commande[1])
@@ -186,7 +191,7 @@ def Jeu(queueToInterface, queueToJeu):
                 print(f"{nombreSteps} positions calculees pour {len(Bodies)} corps en {time.time() - startTime}s.")
             
             if dessinerTrajectoires:
-                Trajectoires.dessinerLignes(trajectoirePositions, mainScreen, couleurs, marquesCollisions)
+                Trajectoires.dessinerLignes(trajectoirePositions, mainScreen, couleurs, marquesCollisions, reference)
 
             # Body renderer
             for body in Bodies:

@@ -34,10 +34,17 @@ def calculerPositions(bodies, stepSize, steps):
 
     return(tout)
 '''
+
+
 def calculerPositions(bodies, stepSize, steps):
     for i in range(len(bodies)):
-        bodies[i].id = uuid.uuid4()
-    positions = [bodies]
+        if bodies[i].id == None or bodies[i].id == -1:
+            bodies[i].id = uuid.uuid4()
+
+    positions = [] # Structure position = [x, y, id]
+    prochainesPositions = [] # Element qui sert a calculer les corps actuels
+    for body in bodies:
+        prochainesPositions += [copy.copy(body)]
 
     marquesColisions = []
     couleurs = {}
@@ -48,10 +55,6 @@ def calculerPositions(bodies, stepSize, steps):
     for i in range(steps):
 
         # Calcule le nouveau momentum
-        prochainesPositions = []
-        for body in positions[len(positions) - 1]:
-            prochainesPositions += [copy.copy(body)]
-
         prochainesPositions = LoiGravitation.apply(prochainesPositions, stepSize)
 
         # Calcule les nouvelles positions
@@ -68,34 +71,48 @@ def calculerPositions(bodies, stepSize, steps):
                     marquesColisions.append(body)
                     lastBodies.append(body.id)
 
-
-        positions.append(prochainesPositions)
+        positionsEtape = [[body.position[0], body.position[1], body.id] for body in prochainesPositions]
+        positions.append(positionsEtape)
     
-    tout = []
-    for body in positions:
-        pos = []
-        for posit in body:
-            pos += [posit.position]
-        tout += [pos]
     return((positions, couleurs, marquesColisions))
 
-def dessinerLignes(positions, mainScreen, couleursDesCorps, marquesColisions):
-    bodies = {}
-    for positionI in range(len(positions) - 1):
-        for bodyI in range(len(positions[positionI])):
-            pos1 = positions[positionI][bodyI].position
+def dessinerLignes(positions, mainScreen, couleursDesCorps, marquesColisions, reference = None):
+    bodies = {} # a enlever
+    mouv = [0, 0]
+    #positions = [[copy.copy(positions[i][j]) for j in range(len(positions[i]))] for i in range(positions)]
+    positions = copy.copy(positions)
+
+    for etape in range(len(positions) - 1):
+        if reference != None:
+            for corps in range(len(positions[etape])):
+                if reference.id == positions[etape][corps][2]:
+                    mouv = [positions[etape + 1][corps][0] - positions[etape][corps][0], 
+                            positions[etape + 1][corps][1] - positions[etape][corps][1]]
+                    break
+
+
+        for corps in range(len(positions[etape])):
+            pos1 = [positions[etape][corps][0], positions[etape][corps][1]]
+            
+            # Cas où le corps est detruit par une collision
             try:
-                pos2 = positions[positionI + 1][bodyI].position
+                pos2 = [positions[etape + 1][corps][0] - mouv[0], 
+                        positions[etape + 1][corps][1] - mouv[1]]
             except:
                 continue
+            
+            positions[etape + 1][corps][0] = pos2[0]
+            positions[etape + 1][corps][1] = pos2[1]
+
+
             pos1, scale = mainScreen.camera.GetTransformFromCamera(pos1)
             pos2, scale = mainScreen.camera.GetTransformFromCamera(pos2)
-            
-            if positions[positionI][bodyI].id in bodies: 
-                bodies[positions[positionI][bodyI].id].append([pos1, pos2])
+                      
+            if positions[etape][corps][2] in bodies: 
+                bodies[positions[etape][corps][2]].append([pos1, pos2])
             else:
-                bodies[positions[positionI][bodyI].id] = [couleursDesCorps[positions[positionI][bodyI].id]]
-                bodies[positions[positionI][bodyI].id].append([pos1, pos2])
+                bodies[positions[etape][corps][2]] = [couleursDesCorps[positions[etape][corps][2]]]
+                bodies[positions[etape][corps][2]].append([pos1, pos2])
         
     bodies = bodies.values()
     for body in bodies:
