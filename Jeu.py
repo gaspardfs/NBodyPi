@@ -36,7 +36,8 @@ def Jeu(queueToInterface, queueToJeu):
     multiplicateurTrajectoire = 1 # Le plus grand c'est, le moins precis la trajectoire devient mais augmente la quantite projetee
 
     lastMousPos = None
-    dragging = False
+    dragging = None
+    dragCheck = False
 
     # Statistique
     intervaleDePerformanceUpdate = 10 # Temps en seconde entre evaluations de performance
@@ -70,7 +71,7 @@ def Jeu(queueToInterface, queueToJeu):
             queueToInterface.put([n, valeur])
 
     def EventHandler():
-        nonlocal dragging, lastMousPos, actualizerPositions
+        nonlocal dragging, lastMousPos, actualizerPositions, dragCheck
         nonlocal pause
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -80,21 +81,23 @@ def Jeu(queueToInterface, queueToJeu):
                     pygame.quit()
             if event.type == pygame.MOUSEWHEEL:
                 mainScreen.camera.AddZoom(event.y * -CameraScrollSpeed)
-            if pygame.mouse.get_pressed()[0] == True:
+
+            if pygame.mouse.get_pressed()[0] == True and dragging == None and not dragCheck:
                 for Body in Bodies:
                     position = Body.sprite.realPosition
                     radius = Body.sprite.realRadius
                     rect = pygame.Rect(position[0], position[1], radius * 2, radius * 2)
-                    if rect.collidepoint(event.pos):
-                        if not dragging:
-                            dragging = True
+                    try:
+                        if rect.collidepoint(event.pos):
+                            dragging = Body.id
                             lastMousPos = event.pos
-                        else:
-                            Body.position = [Body.position[0] + (event.pos[0] - lastMousPos[0]) * mainScreen.camera.scale, Body.position[1] + (event.pos[1] - lastMousPos[1]) * mainScreen.camera.scale]
-                            lastMousPos = event.pos
-                            actualizerPositions = True
+                    except:
+                        pass
+                dragCheck = True
+
             if event.type == MOUSEBUTTONUP:
-                dragging = False
+                dragging = None
+                dragCheck = False
 
         # Keyboard movement
         keys = pygame.key.get_pressed()
@@ -173,7 +176,15 @@ def Jeu(queueToInterface, queueToJeu):
             mainScreen.screen.blit(background, (0, -2))
             EventHandler()
             multiprocessingIntake()
+            
 
+            if dragging:
+                pos = pygame.mouse.get_pos()
+                for body in Bodies:
+                    if body.id == dragging:
+                        body.position = [body.position[0] + (pos[0] - lastMousPos[0]) * mainScreen.camera.scale, body.position[1] + (pos[1] - lastMousPos[1]) * mainScreen.camera.scale]
+                lastMousPos = pos
+                actualizerPositions = True
 
             # Trajectories Renderer       
             if dessinerTrajectoires and actualizerPositions:
