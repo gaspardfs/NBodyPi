@@ -28,10 +28,32 @@ def apply(bodies : list, stepSize) -> list:
                 x = bodies[j].position[0] - bodies[i].position[0]
                 y = bodies[j].position[1] - bodies[i].position[1]
 
-                vectorItoJ = math.atan2(y, x)
-                vectorJtoI = vectorItoJ - math.pi
+                accelerationI = force * stepSize / bodies[i].mass
+                accelerationJ = force * stepSize / bodies[j].mass
+                try:
+                    vecteurI = [x * (accelerationI / distance), y * (accelerationI / distance)]
+                    vecteurJ = [-x * (accelerationJ / distance), -y * (accelerationJ / distance)]
+                except:
+                    vecteurI = [0, 0]
+                    vecteurJ = [0, 0]
+
+                bodies[i].momentum = [bodies[i].momentum[0] + vecteurI[0],
+                                      bodies[i].momentum[1] + vecteurI[1]]
+                bodies[j].momentum = [bodies[j].momentum[0] + vecteurJ[0],
+                                      bodies[j].momentum[1] + vecteurJ[1]]
                 
-                bodies[i].apply_force(force * stepSize, vectorItoJ)
-                bodies[j].apply_force(force * stepSize, vectorJtoI)
+                bodies[i].position = [bodies[i].position[0] + bodies[i].momentum[0],
+                                      bodies[i].position[1] + bodies[i].momentum[1]]
+                bodies[j].position = [bodies[j].position[0] + bodies[j].momentum[0],
+                                      bodies[j].position[1] + bodies[j].momentum[1]]
+                                      
+
+                #vectorItoJ = math.atan2(y, x)
+                #vectorJtoI = vectorItoJ - math.pi
+                
+                #bodies[i].apply_force(force * stepSize, vectorItoJ)
+                #bodies[j].apply_force(force * stepSize, vectorJtoI)
+                    
+                
                 couples_appliques += [[i, j]]
     return bodies

@@ -230,8 +230,8 @@ def Jeu(queueToInterface, queueToJeu):
                 # Bodies
                 # Applies the law for all the bodies
                 Bodies = LoiGravitation.apply(Bodies, stepSize)
-                for body in Bodies:
-                    body.position = [body.position[0] + body.momentum[0], body.position[1] + body.momentum[1]]
+                #for body in Bodies:
+                #    body.position = [body.position[0] + body.momentum[0], body.position[1] + body.momentum[1]]
                 if updatePerformance:
                     updatePerformance = False
                     print(f"PERFORMANCE UPDATE: Temps de calcul = {time.time() - lastPerformanceUpdate}s, {(time.time() - lastPerformanceUpdate) / stepSpeed * 100}% de temps de calcul utilisee.")

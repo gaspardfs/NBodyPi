@@ -1,4 +1,5 @@
 from Regles import LoiGravitation
+from Regles import LoiGravitationLeapfrog
 import pygame
 from pygame.locals import *
 import Classes
@@ -43,6 +44,7 @@ def calculerPositions(bodies, stepSize, steps):
 
     positions = [] # Structure position = [x, y, id]
     prochainesPositions = [] # Element qui sert a calculer les corps actuels
+    accelerations = None
     for body in bodies:
         prochainesPositions += [copy.copy(body)]
 
@@ -55,11 +57,11 @@ def calculerPositions(bodies, stepSize, steps):
     for i in range(steps):
 
         # Calcule le nouveau momentum
-        prochainesPositions = LoiGravitation.apply(prochainesPositions, stepSize)
+        prochainesPositions, accelerations = LoiGravitationLeapfrog.apply(prochainesPositions, stepSize, accelerations)
 
         # Calcule les nouvelles positions
-        for body in prochainesPositions:
-            body.position = [body.position[0] + body.momentum[0], body.position[1] + body.momentum[1]]
+        #for body in prochainesPositions:
+        #    body.position = [body.position[0] + body.momentum[0], body.position[1] + body.momentum[1]]
 
         lastBodies = [bodies[i].id for i in range(len(prochainesPositions))]
         prochainesPositions = Collisions.collisions(prochainesPositions, True)
@@ -115,12 +117,22 @@ def dessinerLignes(positions, mainScreen, couleursDesCorps, marquesColisions, re
                 bodies[positions[etape][corps][2]].append([pos1, pos2])
         
     bodies = bodies.values()
+    '''
+    for body in bodies:
+        ligne = [body[i][0] for i in range(1, len(body))]
+        pygame.draw.lines(mainScreen.screen, (body[0][0], body[0][1], body[0][2]), False, ligne, 2)
+    '''
     for body in bodies:
         for i in range(1, len(body)):
+            # Verifie si ligne est visible
+            #if not mainScreen.camera.EstVisible(body[i][0]) and not mainScreen.camera.EstVisible(body[i][1]):
+            #    continue
+
             try:
                 pygame.draw.line(mainScreen.screen, (body[0][0], body[0][1], body[0][2]), body[i][0], body[i][1], 2)
             except:
                 pass
+    
 
     for collision in marquesColisions:
         collision = copy.copy(collision)

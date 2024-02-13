@@ -45,6 +45,12 @@ class Camera:
         scale = self.Dimensions[0] / self.WorldDimensions[0]
         position = [int(position[0] * scale), int(position[1] * scale)]
         return (position, scale)
+    
+    def EstVisible(self, PositionEcran):
+        if PositionEcran[0] < 0 or PositionEcran[1] < 0 or PositionEcran[0] > self.Dimensions[0] or PositionEcran[1] > self.Dimensions[1]:
+            return False
+        return True
+        
 
 
 class Sprite:
@@ -120,14 +126,8 @@ class Body:
         self.setMass(mass)
         self.name = name
 
-    
-    def setRadius(self, radius):
-        print("Plus utilisee car c'est fait automatiquement.")
-        self.sprite.setScale(int(radius / 16))
-        self.radius = radius
-
     def setMass(self, mass):
-        self.mass = mass
+        self.mass = mass 
         self.radius = (mass * radiusMassMultiplier) ** (1. / 3) 
         self.sprite.setScale(int(self.radius / 16))
 
