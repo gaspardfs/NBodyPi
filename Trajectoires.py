@@ -44,7 +44,7 @@ def calculerPositions(bodies, stepSize, steps):
 
     positions = [] # Structure position = [x, y, id]
     prochainesPositions = [] # Element qui sert a calculer les corps actuels
-    accelerations = None
+    #accelerations = None
     for body in bodies:
         prochainesPositions += [copy.copy(body)]
 
@@ -57,8 +57,8 @@ def calculerPositions(bodies, stepSize, steps):
     for i in range(steps):
 
         # Calcule le nouveau momentum
-        prochainesPositions, accelerations = LoiGravitationLeapfrog.apply(prochainesPositions, stepSize, accelerations)
-
+        #prochainesPositions, accelerations = LoiGravitationLeapfrog.apply(prochainesPositions, stepSize, accelerations)
+        prochainesPositions = LoiGravitation.apply(prochainesPositions, stepSize)
         # Calcule les nouvelles positions
         #for body in prochainesPositions:
         #    body.position = [body.position[0] + body.momentum[0], body.position[1] + body.momentum[1]]

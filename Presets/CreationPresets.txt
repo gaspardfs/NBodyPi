@@ -8,7 +8,7 @@ Bodies.append(body2)
 Presets.SauverPreset("Presets/OrbiteSimple", Bodies)
 Bodies = []
 
-# Caos
+# Chaos
 body1 = Body([1, 1], [0, 0], 20999.0, "Sprites/PlanetRed.png", 66, 212, 245)
 body2 = Body([0, -3000], [250, 0], 999.0, "Sprites/PlanetRed.png", 66, 245, 66)
 body3 = Body([0, -7000], [100, 0], 999.0, "Sprites/PlanetRed.png", 245, 179, 66) 
@@ -36,6 +36,19 @@ Bodies.append(body3)
 Presets.SauverPreset("Presets/Collisions", Bodies)
 Bodies = []
 
+# Solution trois corps
+# Inspiré du papier https://arxiv.org/pdf/math/0011268.pdf par Alain Chenciner et Richard Montgomer
+# Il s'agit d'une solution de leur papier avec quelques erreurs d'application dans la simulation
+corps1 = Body([0.97000436 * 1024, -0.24308753 * 1024], [(0.93240737 / 2) * 32, (0.86473146 / 2) * 32],  6.32591398 * 32 * (math.pi / 2), None, 255, 0, 1)
+corps2 = Body([-0.9700043600 * 1024, 0.24308753 * 1024], [(0.93240737 / 2) * 32, (0.86473146 / 2) * 32], 6.32591398 * 32 * (math.pi / 2), None, 0, 255, 1)
+corps3 = Body([0, 0], [-0.93240737 * 32, -0.86473146 * 32], 6.32591398 * 32  * (math.pi / 2), None, 0, 0, 255)
+
+
+Bodies.append(corps1)
+Bodies.append(corps2)
+Bodies.append(corps3)
+Presets.SauverPreset("Presets/Solution3Corps", Bodies)
+    
 
 # Simulation debut systeme solaire
 for j in range(3):
@@ -49,3 +62,5 @@ for j in range(3):
         Bodies.append(corps)
     Presets.SauverPreset(f"Presets/DebutSystemeSolaire_{j}", Bodies)
     Bodies = []
+
+    
