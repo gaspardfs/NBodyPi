@@ -4,6 +4,7 @@ from PIL import ImageTk, Image
 import pygame
 from pygame.locals import *
 import math
+import uuid
 
 
 
@@ -125,6 +126,10 @@ class Body:
         self.momentum = momentum
         self.setMass(mass)
         self.name = name
+        if id == -1:
+            self.id = uuid.uuid4()
+        else:
+            self.id = id
 
     def setMass(self, mass):
         self.mass = mass 

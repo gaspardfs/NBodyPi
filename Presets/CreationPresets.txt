@@ -39,10 +39,9 @@ Bodies = []
 # Solution trois corps
 # Inspiré du papier https://arxiv.org/pdf/math/0011268.pdf par Alain Chenciner et Richard Montgomer
 # Il s'agit d'une solution de leur papier avec quelques erreurs d'application dans la simulation
-corps1 = Body([0.97000436 * 1024, -0.24308753 * 1024], [(0.93240737 / 2) * 32, (0.86473146 / 2) * 32],  6.32591398 * 32 * (math.pi / 2), None, 255, 0, 1)
-corps2 = Body([-0.9700043600 * 1024, 0.24308753 * 1024], [(0.93240737 / 2) * 32, (0.86473146 / 2) * 32], 6.32591398 * 32 * (math.pi / 2), None, 0, 255, 1)
-corps3 = Body([0, 0], [-0.93240737 * 32, -0.86473146 * 32], 6.32591398 * 32  * (math.pi / 2), None, 0, 0, 255)
-
+corps1 = Body([0.97000436 * 1024, -0.24308753 * 1024], [(0.93240737 / 2) * 32, (0.86473146 / 2) * 32],  157, None, 255, 0, 1)
+corps2 = Body([-0.9700043600 * 1024, 0.24308753 * 1024], [(0.93240737 / 2) * 32, (0.86473146 / 2) * 32], 157, None, 0, 255, 1)
+corps3 = Body([0, 0], [-0.93240737 * 32, -0.86473146 * 32], 157, None, 0, 0, 255)
 
 Bodies.append(corps1)
 Bodies.append(corps2)
