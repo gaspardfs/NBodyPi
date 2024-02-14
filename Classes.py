@@ -5,6 +5,7 @@ import pygame
 from pygame.locals import *
 import math
 import uuid
+from shapely.geometry import Point, Polygon
 
 
 
@@ -46,7 +47,8 @@ class Camera:
         scale = self.Dimensions[0] / self.WorldDimensions[0]
         position = [int(position[0] * scale), int(position[1] * scale)]
         return (position, scale)
-    
+
+
     def EstVisible(self, PositionEcran):
         if PositionEcran[0] < 0 or PositionEcran[1] < 0 or PositionEcran[0] > self.Dimensions[0] or PositionEcran[1] > self.Dimensions[1]:
             return False
@@ -88,19 +90,6 @@ class Sprite:
         self.realRadius = image.get_width() / 2
         self.realPosition = position
         mainScreen.screen.blit(image, tuple(position))
-    
-#    def color(r=255, g=255, b=255):
-#        """ Entree : PIL.Image
-#        Sortie : PIL.Image """
-#        global image2
-#        image2 = image.copy()
-#        pimg1 = img1.load()
-#        pimg2 = img2.load()
-#        for i in range(image2.size[0]):
-#            for j in range(image2.size[1]):
-#                (r, v, b) = pimg1[i, j]
-#                pimg2[i, j] = (r, g, b)
-#        return image2
 
 radiusMassMultiplier = 1500 # Essentialy means the density of the planets
 
@@ -165,4 +154,58 @@ class Body:
         vecteur = [math.cos(v_angle) * delta_momentum, math.sin(v_angle) * delta_momentum]
         self.momentum = [self.momentum[0] + vecteur[0], self.momentum[1] + vecteur[1]]
 
+class Fleche:
+    def __init__(self, debut=[0, 0], fin=[0, 0], largeur=10, couleur=(255, 255, 255), normalizerCamera = False, dimensionsPointe = 8):
+        self.debut = debut
+        self.fin = fin
+        self.largeur = largeur
+        self.couleur = couleur
+        self.dimensionsPointe = dimensionsPointe
+        self.normalizerCamera = normalizerCamera
     
+    def draw(self, mainScreen):
+        # Code non original
+        debut, scale = mainScreen.camera.GetTransformFromCamera(self.debut)
+        fin, scale = mainScreen.camera.GetTransformFromCamera(self.fin)
+        rad = math.pi / 180
+
+        pygame.draw.line(mainScreen.screen, self.couleur, debut, fin, self.largeur)
+        rotation = (math.atan2(debut[1] - fin[1], fin[0] - debut[0])) + math.pi/2
+        pygame.draw.polygon(mainScreen.screen, self.couleur, ((fin[0] + self.dimensionsPointe * math.sin(rotation),
+                                        fin[1] + self.dimensionsPointe * math.cos(rotation)),
+                                    (fin[0] + self.dimensionsPointe * math.sin(rotation - 120*rad),
+                                        fin[1] + self.dimensionsPointe * math.cos(rotation - 120*rad)),
+                                    (fin[0] + self.dimensionsPointe * math.sin(rotation + 120*rad),
+                                        fin[1] + self.dimensionsPointe * math.cos(rotation + 120*rad))))
+
+    
+    def PointDansFleche(self, mainScreen, point):
+        # Code non original
+        debut, scale = mainScreen.camera.GetTransformFromCamera(self.debut)
+        fin, scale = mainScreen.camera.GetTransformFromCamera(self.fin)
+        point = Point(point)
+
+        rad = math.pi / 180
+        pygame.draw.line(mainScreen.screen, self.couleur, debut, fin, self.largeur)
+        rotation = (math.atan2(debut[1] - fin[1], fin[0] - debut[0])) + math.pi/2
+        dimensions = ((fin[0] + self.dimensionsPointe * math.sin(rotation),
+                                        fin[1] + self.dimensionsPointe * math.cos(rotation)),
+                                       (fin[0] + self.dimensionsPointe * math.sin(rotation - 120*rad),
+                                        fin[1] + self.dimensionsPointe * math.cos(rotation - 120*rad)),
+                                       (fin[0] + self.dimensionsPointe * math.sin(rotation + 120*rad),
+                                        fin[1] + self.dimensionsPointe * math.cos(rotation + 120*rad)))
+        dimensions = Polygon(dimensions)
+        
+        if point.within(dimensions):
+            return True
+        
+        dimensions = ((debut[0] - self.largeur / 2, debut[1] + self.largeur / 2),
+                      (fin[0] + self.largeur / 2, fin[1] + self.largeur / 2),
+                      (fin[0] + self.largeur / 2, fin[1] - self.largeur / 2),
+                      (debut[0] - self.largeur / 2, debut[1] - self.largeur / 2))
+        dimensions = Polygon(dimensions)
+        if point.within(dimensions):
+            return True
+        return False
+
+

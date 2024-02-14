@@ -34,10 +34,12 @@ def Jeu(queueToInterface, queueToJeu):
     dessinerTrajectoires = False
     nombreSteps = 1000
     multiplicateurTrajectoire = 1 # Le plus grand c'est, le moins precis la trajectoire devient mais augmente la quantite projetee
+    dessinerVecteursVitesse = True
 
     lastMousPos = None
     dragging = None
     dragCheck = False
+    flecheDraggingCorpsId = None
 
     # Statistique
     intervaleDePerformanceUpdate = 10 # Temps en seconde entre evaluations de performance
@@ -65,13 +67,14 @@ def Jeu(queueToInterface, queueToJeu):
     # LISTE DE RENDERIZATION ET SIMULATION
     Bodies = []
     Renderer = []
+    Fleches = {}
     reference = None
 
     def envoyerValeurMultiprocessing(valeur, n):
             queueToInterface.put([n, valeur])
 
     def EventHandler():
-        nonlocal dragging, lastMousPos, actualizerPositions, dragCheck
+        nonlocal dragging, lastMousPos, actualizerPositions, dragCheck, flecheDraggingCorpsId
         nonlocal pause
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -83,21 +86,33 @@ def Jeu(queueToInterface, queueToJeu):
                 mainScreen.camera.AddZoom(event.y * -CameraScrollSpeed)
 
             if pygame.mouse.get_pressed()[0] == True and dragging == None and not dragCheck and etat == 1:
-                for Body in Bodies:
-                    position = Body.sprite.realPosition
-                    radius = Body.sprite.realRadius
-                    rect = pygame.Rect(position[0], position[1], radius * 2, radius * 2)
+                colisionFleche = False
+                dragCheck = True
+                for fleche in Fleches.keys():
                     try:
-                        if rect.collidepoint(event.pos):
-                            dragging = Body.id 
+                        if Fleches[fleche].PointDansFleche(mainScreen, event.pos) == True:
+                            flecheDraggingCorpsId = fleche
                             lastMousPos = event.pos
+                            colisionFleche = True
                     except:
                         pass
-                dragCheck = True
+                
+                if not colisionFleche:
+                    for Body in Bodies:
+                        position = Body.sprite.realPosition
+                        radius = Body.sprite.realRadius
+                        rect = pygame.Rect(position[0], position[1], radius * 2, radius * 2)
+                        try:
+                            if rect.collidepoint(event.pos):
+                                dragging = Body.id 
+                                lastMousPos = event.pos
+                        except:
+                            pass
 
             if event.type == MOUSEBUTTONUP:
                 dragging = None
                 dragCheck = False
+                flecheDraggingCorpsId = None
 
         # Keyboard movement
         keys = pygame.key.get_pressed()
@@ -176,8 +191,10 @@ def Jeu(queueToInterface, queueToJeu):
             mainScreen.screen.blit(background, (0, -2))
             EventHandler()
             multiprocessingIntake()
-            
 
+            #pygame.draw.polygon(mainScreen.screen, (255, 255, 255), ((0, 100), (0, 200), (200, 200), (200, 300), (300, 150), (200, 0), (200, 100)))
+        
+            
             if dragging:
                 pos = pygame.mouse.get_pos()
                 for body in Bodies:
@@ -185,7 +202,16 @@ def Jeu(queueToInterface, queueToJeu):
                         body.position = [body.position[0] + (pos[0] - lastMousPos[0]) * mainScreen.camera.scale, body.position[1] + (pos[1] - lastMousPos[1]) * mainScreen.camera.scale]
                 lastMousPos = pos
                 actualizerPositions = True
+            
+            if flecheDraggingCorpsId:
+                pos = pygame.mouse.get_pos()
+                for body in Bodies:
+                    if body.id == flecheDraggingCorpsId:
+                        body.momentum = [body.momentum[0] + (pos[0] - lastMousPos[0]) * mainScreen.camera.scale, body.momentum[1] + (pos[1] - lastMousPos[1]) * mainScreen.camera.scale]
+                lastMousPos = pos
+                actualizerPositions = True
 
+            
             # Trajectories Renderer       
             if dessinerTrajectoires and actualizerPositions:
                 startTime = time.time()
@@ -211,6 +237,37 @@ def Jeu(queueToInterface, queueToJeu):
             # Renderer
             for sprite in Renderer:
                 sprite.draw(mainScreen)
+
+            # Display fleches
+            if dessinerVecteursVitesse:
+                corpsExistants = set()
+                for body in Bodies:
+                    if body.id in Fleches:
+                        Fleches[body.id].debut = body.position
+                        if reference == None:
+                            Fleches[body.id].fin = [body.position[0] + body.momentum[0], body.position[1] + body.momentum[1]]
+                        else:
+                            Fleches[body.id].fin = [body.position[0] + body.momentum[0] - reference.momentum[0], body.position[1] + body.momentum[1] - reference.momentum[1]]
+                    else:
+                        if reference == None:
+                            fleche = Fleche(body.position, [body.position[0] + body.momentum[0], body.position[1] + body.momentum[1]], 10,
+                                        (abs(body.r1 -255), abs(body.g1 -255), abs(body.b1 -255)), 15)
+                        else:
+                            fleche = Fleche(body.position, [body.position[0] + body.momentum[0] - reference.momentum[0], body.position[1] + body.momentum[1] - reference.momentum[1]], 10,
+                                        (abs(body.r1 -255), abs(body.g1 -255), abs(body.b1 -255)), 15)
+                        Fleches[body.id] = fleche
+                            
+                    corpsExistants.add(body.id)
+                
+                flechesToPop = []
+                for fleche in Fleches.keys():
+                    if fleche not in corpsExistants:
+                        flechesToPop.append(fleche)
+                for fleche in flechesToPop:
+                    Fleches.pop(fleche)
+
+                for fleche in Fleches.values():
+                    fleche.draw(mainScreen)
 
             pygame.display.update()
 
