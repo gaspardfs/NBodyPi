@@ -7,34 +7,6 @@ import Collisions
 import copy
 import uuid
 
-'''
-def calculerPositions(bodies, stepSize, steps):
-    positions = [bodies]
-    for i in range(steps):
-
-        # Calcule le nouveau momentum
-        prochainesPositions = []
-        for body in positions[len(positions) - 1]:
-            prochainesPositions += [copy.copy(body)]
-
-        prochainesPositions = LoiGravitation.apply(prochainesPositions, stepSize)
-
-        # Calcule les nouvelles positions
-        for body in prochainesPositions:
-            body.position = [body.position[0] + body.momentum[0], body.position[1] + body.momentum[1]]
-            #print(body.position)
-            
-        positions.append(prochainesPositions)
-        #print(positions[-1][0].position)
-    tout = []
-    for body in positions:
-        pos = []
-        for posit in body:
-            pos += [posit.position]
-        tout += [pos]
-
-    return(tout)
-'''
 
 
 def calculerPositions(bodies, stepSize, steps):
@@ -56,12 +28,9 @@ def calculerPositions(bodies, stepSize, steps):
 
     for i in range(steps):
 
-        # Calcule le nouveau momentum
+        # Calcule le nouveau momentum et positions
         #prochainesPositions, accelerations = LoiGravitationLeapfrog.apply(prochainesPositions, stepSize, accelerations)
         prochainesPositions = LoiGravitation.apply(prochainesPositions, stepSize)
-        # Calcule les nouvelles positions
-        #for body in prochainesPositions:
-        #    body.position = [body.position[0] + body.momentum[0], body.position[1] + body.momentum[1]]
 
         lastBodies = [bodies[i].id for i in range(len(prochainesPositions))]
         prochainesPositions = Collisions.collisions(prochainesPositions, True)
@@ -117,17 +86,9 @@ def dessinerLignes(positions, mainScreen, couleursDesCorps, marquesColisions, re
                 bodies[positions[etape][corps][2]].append([pos1, pos2])
         
     bodies = bodies.values()
-    '''
-    for body in bodies:
-        ligne = [body[i][0] for i in range(1, len(body))]
-        pygame.draw.lines(mainScreen.screen, (body[0][0], body[0][1], body[0][2]), False, ligne, 2)
-    '''
+
     for body in bodies:
         for i in range(1, len(body)):
-            # Verifie si ligne est visible
-            #if not mainScreen.camera.EstVisible(body[i][0]) and not mainScreen.camera.EstVisible(body[i][1]):
-            #    continue
-
             try:
                 pygame.draw.line(mainScreen.screen, (body[0][0], body[0][1], body[0][2]), body[i][0], body[i][1], 2)
             except:
@@ -141,21 +102,6 @@ def dessinerLignes(positions, mainScreen, couleursDesCorps, marquesColisions, re
         collision.b1 = int(collision.b1 * 0.6)
         collision.reloadSprite()
         collision.sprite.draw(mainScreen)
-
-
-    '''
-    for positionI in range(len(positions) - 1):
-        for bodyI in range(len(positions[positionI])):
-            pos1 = positions[positionI][bodyI]
-            pos2 = positions[positionI + 1][bodyI]
-            pos1, scale = mainScreen.camera.GetTransformFromCamera(pos1)
-            pos2, scale = mainScreen.camera.GetTransformFromCamera(pos2)
-            # scale n'est pas utilise
-            try:
-                pygame.draw.line(mainScreen.screen, couleursDesCorps[bodyI], pos1, pos2, 2)
-            except:
-                pass
-    '''
 
 
 

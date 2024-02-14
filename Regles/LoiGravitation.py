@@ -42,18 +42,9 @@ def apply(bodies : list, stepSize) -> list:
                 bodies[j].momentum = [bodies[j].momentum[0] + vecteurJ[0],
                                       bodies[j].momentum[1] + vecteurJ[1]]
                 
-                bodies[i].position = [bodies[i].position[0] + bodies[i].momentum[0],
-                                      bodies[i].position[1] + bodies[i].momentum[1]]
-                bodies[j].position = [bodies[j].position[0] + bodies[j].momentum[0],
-                                      bodies[j].position[1] + bodies[j].momentum[1]]
-                                      
-
-                #vectorItoJ = math.atan2(y, x)
-                #vectorJtoI = vectorItoJ - math.pi
-                
-                #bodies[i].apply_force(force * stepSize, vectorItoJ)
-                #bodies[j].apply_force(force * stepSize, vectorJtoI)
-                    
-                
                 couples_appliques += [[i, j]]
+
+    for body in bodies:
+        body.position = [body.position[0] + body.momentum[0],
+                         body.position[1] + body.momentum[1]]
     return bodies
