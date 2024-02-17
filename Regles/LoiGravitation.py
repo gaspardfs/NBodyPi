@@ -9,29 +9,29 @@ G_constant = 0.000000066743
 # Modifie
 #G_constant = 0.000000066743
 
-def apply(bodies : list, stepSize) -> list:
+def apply(corps : list, taillePas) -> list:
     couples_appliques = []
-    for i in range(len(bodies)):
-        for j in range(len(bodies)):
+    for i in range(len(corps)):
+        for j in range(len(corps)):
             if i == j:
                 continue
             if not [j, i] in couples_appliques and not [i, j] in couples_appliques:
                 # Calcule la distance entre I et J
-                distance = math.sqrt(abs(bodies[i].position[0] - bodies[j].position[0])**2 + 
-                                    abs(bodies[i].position[1] - bodies[j].position[1])**2)
+                distance = math.sqrt(abs(corps[i].position[0] - corps[j].position[0])**2 + 
+                                    abs(corps[i].position[1] - corps[j].position[1])**2)
                 
                 # Calcule la force gravitationelle entre I et J
                 try:
-                    force = G_constant * ((bodies[i].mass * bodies[j].mass) / distance**2)
+                    force = G_constant * ((corps[i].masse * corps[j].masse) / distance**2)
                 except:
                     force = 0
-                x = bodies[j].position[0] - bodies[i].position[0]
-                y = bodies[j].position[1] - bodies[i].position[1]
+                x = corps[j].position[0] - corps[i].position[0]
+                y = corps[j].position[1] - corps[i].position[1]
 
                 vectorItoJ = math.atan2(y, x)
                 vectorJtoI = vectorItoJ - math.pi
                 
-                bodies[i].apply_force(force * stepSize, vectorItoJ)
-                bodies[j].apply_force(force * stepSize, vectorJtoI)
+                corps[i].apply_force(force * taillePas, vectorItoJ)
+                corps[j].apply_force(force * taillePas, vectorJtoI)
                 couples_appliques += [[i, j]]
-    return bodies
+    return corps

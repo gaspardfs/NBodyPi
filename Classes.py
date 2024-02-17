@@ -8,155 +8,143 @@ import math
 
 
 class Screen:
-    def __init__(self, width, height):
-        self.camera = Camera([width, height], [width, height])
-        self.width = width
-        self.height = height
-        self.screen = pygame.display.set_mode((width, height), pygame.RESIZABLE)
+    def __init__(self, largeur, hauteur):
+        self.camera = Camera([largeur, hauteur], [largeur, hauteur])
+        self.width = largeur
+        self.hauteur = hauteur
+        self.screen = pygame.display.set_mode((largeur, hauteur), pygame.RESIZABLE)
 
 
 class Camera:
-    def __init__(self, Dimensions, WorldDimensions, position=[0, 0]):
+    def __init__(self, Dimensions, DimensionsSim, position=[0, 0]):
         self.position = position
-        # Width and height defines what range of the world positions is possible to be seen,
-        # therefore, the camera pixel position and the position of the bodies are completly independant
-        self.WorldDimensions = WorldDimensions  # In world coords
-        self.Dimensions = Dimensions  # In pixels
-        self.scale = 1
+        # largeur et hauteur definissent les dimensions de la caméra initalement
+        self.DimensionsSim = DimensionsSim  # Coordonnées dans l'espace de simulation
+        self.Dimensions = Dimensions  # En pixels
+        self.echelle = 1
 
     def AddZoom(self, zoom):
-        effectif = self.WorldDimensions[0] + self.WorldDimensions[1]
+        effectif = self.DimensionsSim[0] + self.DimensionsSim[1]
         dimensions = [
-            self.WorldDimensions[0] + zoom / (self.WorldDimensions[0] / effectif),
-            self.WorldDimensions[1] + zoom / (self.WorldDimensions[1] / effectif),
+            self.DimensionsSim[0] + zoom / (self.DimensionsSim[0] / effectif),
+            self.DimensionsSim[1] + zoom / (self.DimensionsSim[1] / effectif),
         ]
         if dimensions[0] < 0 or dimensions[1] < 0:
             return None
-        self.WorldDimensions = dimensions
-        self.scale = self.WorldDimensions[0] / self.Dimensions[0]
+        self.DimensionsSim = dimensions
+        self.echelle = self.DimensionsSim[0] / self.Dimensions[0]
 
-    def GetTransformFromCamera(self, position):
-        """Gets the position in pixels from the world position"""
-        center = [int(self.WorldDimensions[0] / 2), int(self.WorldDimensions[1] / 2)]
+    def CalculerPosEtEchelleParCamera(self, position):
+        """Calcule la position en pixels de la position dans la simulation"""
+        centre = [int(self.DimensionsSim[0] / 2), int(self.DimensionsSim[1] / 2)]
         position = [
-            position[0] - self.position[0] + center[0],
-            position[1] - self.position[1] + center[1],
+            position[0] - self.position[0] + centre[0],
+            position[1] - self.position[1] + centre[1],
         ]
-        scale = self.Dimensions[0] / self.WorldDimensions[0]
-        position = [int(position[0] * scale), int(position[1] * scale)]
-        return (position, scale)
+        echelle = self.Dimensions[0] / self.DimensionsSim[0]
+        position = [int(position[0] * echelle), int(position[1] * echelle)]
+        return (position, echelle)
 
 
 class Sprite:
     def __init__(self, image, position=[0, 0]) -> None:
         self.imagePath = image
         self.image = pygame.image.load(image)
-        # position is in the center of the image
+        # position est le centre de l'image
         self.position = position
 
-    def setScale(self, scale):
+    def defEchelle(self, echelle):
         if self.image != None:
             self.image = pygame.transform.scale(
                 self.image,
-                (self.image.get_width() * scale, self.image.get_height() * scale),
+                (self.image.get_width() * echelle, self.image.get_height() * echelle),
             )
-            self.scale = self.image.get_width() * scale, self.image.get_height() * scale 
+            self.echelle = self.image.get_width() * echelle, self.image.get_height() * echelle 
         else:
-            self.scale = 64 * scale, 64 * scale 
+            self.echelle = 64 * echelle, 64 * echelle 
 
         
 
-    def draw(self, mainScreen):
+    def draw(self, ecranPrincipal):
         # Centre la position du sprite relatif à ses dimensions
         w, h = self.image.get_width(), self.image.get_height()
         position = [self.position[0] - w / 2, self.position[1] - h / 2]
 
-        position, scale = mainScreen.camera.GetTransformFromCamera(position)
+        position, echelle = ecranPrincipal.camera.CalculerPosEtEchelleParCamera(position)
         image = self.image
         image = pygame.transform.scale(
             self.image,
-            [int(image.get_width() * scale), int(image.get_height() * scale)],
+            [int(image.get_width() * echelle), int(image.get_height() * echelle)],
         )
         self.realImage = image
-        self.realRadius = image.get_width() / 2
+        self.realRayon = image.get_width() / 2
         self.realPosition = position
-        mainScreen.screen.blit(image, tuple(position))
-    
-#    def color(r=255, g=255, b=255):
-#        """ Entree : PIL.Image
-#        Sortie : PIL.Image """
-#        global image2
-#        image2 = image.copy()
-#        pimg1 = img1.load()
-#        pimg2 = img2.load()
-#        for i in range(image2.size[0]):
-#            for j in range(image2.size[1]):
-#                (r, v, b) = pimg1[i, j]
-#                pimg2[i, j] = (r, g, b)
-#        return image2
+        ecranPrincipal.screen.blit(image, tuple(position))
 
-radiusMassMultiplier = 1500 # Essentialy means the density of the planets
 
-class Body:
-    def __init__(self, position=[0, 0], momentum=[0, 0], mass=0, sprite=None, r1=255, g1=255, b1=255, name="Body", id = -1):
+rayonMasseMultiplier = 1500 # Densité des planètes
+
+class Corp:
+    def __init__(self, position=[0, 0], momentum=[0, 0], masse=0, sprite=None, rouge1=255, vert1=255, blue1=255, nom="Corp", id = -1):
 
         # Traitement de couleur
-        colored_img = Image.open("Sprites/PlanetRed.png")
-        colored_img.save("Sprites/colored_img.png")
-        colored_img1 = colored_img.copy()
-        pimg = colored_img.load()
-        pimg1 = colored_img1.load()
-        for i in range(colored_img1.size[0]):
-            for j in range(colored_img1.size[1]):
-                (r, g, b, a) = pimg[i, j]
-                pimg1[i, j] = (r1, g1, b1, a)
-        colored_img1.save("Sprites/colored_img1.png")
-        pygame.image.load("Sprites/colored_img1.png")
-        self.sprite = Sprite("Sprites/colored_img1.png", position)
-        self.r1, self.g1, self.b1 = r1, g1, b1
+        img_colorie = Image.open("Sprites/PlanetRed.png")
+        img_colorie.save("Sprites/img_colorie.png")
+        img_colorie1 = img_colorie.copy()
+        pimg = img_colorie.load()
+        pimg1 = img_colorie1.load()
+        for i in range(img_colorie1.size[0]):
+            for j in range(img_colorie1.size[1]):
+                (rouge, vert, bleu, alpha) = pimg[i, j]
+                pimg1[i, j] = (rouge1, vert1, blue1, alpha)
+        img_colorie1.save("Sprites/img_colorie1.png")
+        pygame.image.load("Sprites/img_colorie1.png")
+        self.sprite = Sprite("Sprites/img_colorie1.png", position)
+        self.rouge1, self.vert1, self.blue1 = rouge1, vert1, blue1
 
         self.position = position
         self.momentum = momentum
-        self.setMass(mass)
-        self.name = name
+        self.definirMasse(masse)
+        self.nom = nom
 
     
-    def setRadius(self, radius):
-        print("Plus utilisee car c'est fait automatiquement.")
-        self.sprite.setScale(int(radius / 16))
-        self.radius = radius
+    def setRayon(self, rayon):
+        print("Plus utilisée car c'est fait automatiquement.")
+        self.sprite.defEchelle(int(rayon / 16))
+        self.rayon = rayon
 
-    def setMass(self, mass):
-        self.mass = mass
-        self.radius = (mass * radiusMassMultiplier) ** (1. / 3) 
-        self.sprite.setScale(int(self.radius / 16))
+    def definirMasse(self, masse):
+        self.masse = masse
+        self.rayon = (masse * rayonMasseMultiplier) ** (1. / 3) 
+        self.sprite.defEchelle(int(self.rayon / 16))
 
-    def reloadSprite(self):
+    def rechargerSprite(self):
         '''Recharge les images (Pour pouvoir sauver les images)'''
-        scale = self.sprite.scale
-        colored_img = Image.open("Sprites/PlanetRed.png")
-        colored_img.save("Sprites/colored_img.png")
-        colored_img1 = colored_img.copy()
-        pimg = colored_img.load()
-        pimg1 = colored_img1.load()
-        for i in range(colored_img1.size[0]):
-            for j in range(colored_img1.size[1]):
-                (r, g, b, a) = pimg[i, j]
-                pimg1[i, j] = (self.r1, self.g1, self.b1, a)
-        colored_img1.save("Sprites/colored_img1.png")
-        pygame.image.load("Sprites/colored_img1.png")
-        self.sprite = Sprite("Sprites/colored_img1.png", self.position)
-        self.sprite.setScale(int(self.radius / 16))
+        echelle = self.sprite.echelle
+        img_colorie = Image.open("Sprites/PlanetRed.png")
+        img_colorie.save("Sprites/img_colorie.png")
+        img_colorie1 = img_colorie.copy()
+        pimg = img_colorie.load()
+        pimg1 = img_colorie1.load()
+        for i in range(img_colorie1.size[0]):
+            for j in range(img_colorie1.size[1]):
+                (rouge, vert, bleu, alpha) = pimg[i, j]
+                pimg1[i, j] = (self.rouge1, self.vert1, self.blue1, alpha)
+        img_colorie1.save("Sprites/img_colorie1.png")
+        pygame.image.load("Sprites/img_colorie1.png")
+        self.sprite = Sprite("Sprites/img_colorie1.png", self.position)
+        self.sprite.defEchelle(int(self.rayon / 16))
 
-    def draw(self, mainScreen):
+    def draw(self, ecranPrincipal):
         if self.sprite != None:
             self.sprite.position = self.position
-            self.sprite.draw(mainScreen)
+            self.sprite.draw(ecranPrincipal)
+
 
     def apply_force(self, force, v_angle):
-        if self.mass == 0:
+        if self.masse == 0:
             return None
-        delta_momentum = force / self.mass
+        delta_momentum = force / self.masse
         vecteur = [math.cos(v_angle) * delta_momentum, math.sin(v_angle) * delta_momentum]
         self.momentum = [self.momentum[0] + vecteur[0], self.momentum[1] + vecteur[1]]
 

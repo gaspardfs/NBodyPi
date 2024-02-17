@@ -4,22 +4,22 @@ import multiprocessing
  
 if __name__ == "__main__":
 
-    queueToInterface = multiprocessing.Queue()
-    queueToJeu = multiprocessing.Queue()
+    queuePourInterface = multiprocessing.Queue()
+    queuePourJeu = multiprocessing.Queue()
 
     
     #Mets les arguments en connexion (il faut avoir une , a la fin)
-    arguments = (queueToInterface, queueToJeu)
+    arguments = (queuePourInterface, queuePourJeu)
 
     #Cree les process 
-    ProcessInterface = multiprocessing.Process(target=Interface.Interface, args=arguments)
-    ProcessJeu = multiprocessing.Process(target=Jeu.Jeu, args=arguments)
+    ProcesInterface = multiprocessing.Process(target=Interface.Interface, args=arguments)
+    ProcesJeu = multiprocessing.Process(target=Jeu.Jeu, args=arguments)
 
-    ProcessInterface.start()
-    ProcessJeu.start()
+    ProcesInterface.start()
+    ProcesJeu.start()
 
     while True:
-        if not ProcessInterface.is_alive() or not ProcessJeu.is_alive():
-            ProcessJeu.kill()
-            ProcessInterface.kill()
+        if not ProcesInterface.is_alive() or not ProcesJeu.is_alive():
+            ProcesJeu.kill()
+            ProcesInterface.kill()
             exit(1)
