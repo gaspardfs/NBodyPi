@@ -2,6 +2,7 @@ import pickle
 import copy
 import time
 import pygame
+import uuid
 
 def SauverPreset(directoire, Corps) -> None:
     # En premier il faut faire une copie a un deuxieme niveau de "Corps"
@@ -19,16 +20,16 @@ def SauverPreset(directoire, Corps) -> None:
         pickle.dump(nouvCorps, f)
 
 def ChargerPreset(directoire) -> list:
-#    try:
-    with open(directoire, "rb") as f:
-        momentDemarrage = time.time()
-        Corps = pickle.load(f)
-        for corp in Corps:
-            corp.rechargerSprite()
-            corp.id = -1 # compatibilité avec ancien presets
-        print(f"Temps de chargement {time.time() - momentDemarrage}s.")
-#    except:
-#       Corps = []
-#       print("Erreur de chargement")
+    try:
+        with open(directoire, "rb") as f:
+            startTime = time.time()
+            Corps = pickle.load(f)
+            for corp in Corps:
+                corp.reloadSprite()
+                corp.id = uuid.uuid4() # compatibilité avec ancien presets
+            print(f"Temps de chargement {time.time() - startTime}s.")
+    except:
+        Corps = []
+        print("Erreur de chargement")
     return Corps
     

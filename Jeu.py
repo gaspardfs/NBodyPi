@@ -18,12 +18,12 @@ def Jeu(queuePourInterface, queuePourJeu):
     # etat -1: arret, etat 0: nul, etat 1: edition, etat 2: simulation
 
     # CAMERA
-    CameraMoveSpeed = 10
-    CameraScrollSpeed = 300
+    VitesseMouvementCamera = 10
+    VitesseScrollCamera = 300
 
     # SIMULATION
     taillePas = 100000000000
-    vitessePas = 0.2 # makes a step every 0.2 seconds
+    vitessePas = 0.2 # Prend un pas tous les 0.2 secondes
     compteurPas = 0
     nouveauPas = False
     pause = True
@@ -34,9 +34,12 @@ def Jeu(queuePourInterface, queuePourJeu):
     dessinerTrajectoires = False
     nombrePas = 1000
     multiplicateurTrajectoire = 1 # Le plus grand c'est, le moins precis la trajectoire devient mais augmente la quantite projetee
+    dessinerVecteursVitesse = True
 
-    dernierePosMous = None
-    glissement = False
+    lastMousPos = None
+    glissement = None
+    dragCheck = False
+    flecheglissementCorpsId = None
 
     # Statistique
     intervaleDePerformanceUpdate = 10 # Temps en seconde entre evaluations de performance
@@ -64,12 +67,14 @@ def Jeu(queuePourInterface, queuePourJeu):
     # LISTE DE RENDERIZATION ET SIMULATION
     Corps = []
     Renderer = []
+    Fleches = {}
+    reference = None
 
     def envoyerValeurMultiprocessing(valeur, n):
             queuePourInterface.put([n, valeur])
 
     def gestionnaireEvenements():
-        nonlocal glissement, dernierePosMous, actualizerPositions
+        nonlocal glissement, lastMousPos, actualizerPositions, dragCheck, flecheglissementCorpsId
         nonlocal pause
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -78,33 +83,47 @@ def Jeu(queuePourInterface, queuePourJeu):
                 if event.key == pygame.K_ESCAPE or event.key == pygame.K_q:
                     pygame.quit()
             if event.type == pygame.MOUSEWHEEL:
-                ecranPrincipal.camera.AddZoom(event.y * -CameraScrollSpeed)
-            if pygame.mouse.get_pressed()[0] == True:
-                for Corp in Corps:
-                    position = Corp.sprite.realPosition
-                    rayon = Corp.sprite.realRayon
-                    rect = pygame.Rect(position[0], position[1], rayon * 2, rayon * 2)
-                    if rect.collidepoint(event.pos):
-                        if not glissement:
-                            glissement = True
-                            dernierePosMous = event.pos
-                        else:
-                            Corp.position = [Corp.position[0] + (event.pos[0] - dernierePosMous[0]) * ecranPrincipal.camera.echelle, Corp.position[1] + (event.pos[1] - dernierePosMous[1]) * ecranPrincipal.camera.echelle]
-                            dernierePosMous = event.pos
-                            actualizerPositions = True
-            if event.type == MOUSEBUTTONUP:
-                glissement = False
+                ecranPrincipal.camera.AddZoom(event.y * -VitesseScrollCamera)
 
-        # Keyboard movement
+            if pygame.mouse.get_pressed()[0] == True and glissement == None and not dragCheck and etat == 1:
+                colisionFleche = False
+                dragCheck = True
+                for fleche in Fleches.keys():
+                    try:
+                        if Fleches[fleche].PointDansFleche(ecranPrincipal, event.pos) == True:
+                            flecheglissementCorpsId = fleche
+                            lastMousPos = event.pos
+                            colisionFleche = True
+                    except:
+                        pass
+                
+                if not colisionFleche:
+                    for Corp in Corps:
+                        position = Corp.sprite.realPosition
+                        rayon = Corp.sprite.realRayon
+                        rect = pygame.Rect(position[0], position[1], rayon * 2, rayon * 2)
+                        try:
+                            if rect.collidepoint(event.pos):
+                                glissement = Corp.id 
+                                lastMousPos = event.pos
+                        except:
+                            pass
+
+            if event.type == MOUSEBUTTONUP:
+                glissement = None
+                dragCheck = False
+                flecheglissementCorpsId = None
+
+        # Mouvement par le clavier
         keys = pygame.key.get_pressed()
         if keys[K_w] or keys[K_UP]:
-            ecranPrincipal.camera.position[1] -= CameraMoveSpeed * ecranPrincipal.camera.echelle
+            ecranPrincipal.camera.position[1] -= VitesseMouvementCamera * ecranPrincipal.camera.echelle
         if keys[K_s] or keys[K_DOWN]:
-            ecranPrincipal.camera.position[1] += CameraMoveSpeed * ecranPrincipal.camera.echelle
+            ecranPrincipal.camera.position[1] += VitesseMouvementCamera * ecranPrincipal.camera.echelle
         if keys[K_a] or keys[K_LEFT]:
-            ecranPrincipal.camera.position[0] -= CameraMoveSpeed * ecranPrincipal.camera.echelle
+            ecranPrincipal.camera.position[0] -= VitesseMouvementCamera * ecranPrincipal.camera.echelle
         if keys[K_d] or keys[K_RIGHT]:
-            ecranPrincipal.camera.position[0] += CameraMoveSpeed * ecranPrincipal.camera.echelle
+            ecranPrincipal.camera.position[0] += VitesseMouvementCamera * ecranPrincipal.camera.echelle
 
         # Keyboard shortcuts
         if keys[K_SPACE]:
@@ -127,6 +146,7 @@ def Jeu(queuePourInterface, queuePourJeu):
         
     def recevoirMultiprocessing():
         nonlocal etat, compteurPas, vitessePas, actualizerPositions, Corps, pause, nouveauPas, Corps, actualizerPositions, dessinerTrajectoires
+        nonlocal reference
         nonlocal nombrePas
         nouvellesCommandes = []
         # Chaque element de queue est une liste de 0: la valeur a changer et 1: la nouvelle valeur
@@ -154,6 +174,9 @@ def Jeu(queuePourInterface, queuePourJeu):
             elif valeur[0] == 10: 
                 nombrePas = valeur[1]
                 actualizerPositions = True
+            elif valeur[0] == 11:
+                reference = valeur[1]
+        
                 
         for commande in nouvellesCommandes:
             envoyerValeurMultiprocessing(commande[0], commande[1])
@@ -170,8 +193,27 @@ def Jeu(queuePourInterface, queuePourJeu):
             gestionnaireEvenements()
             recevoirMultiprocessing()
 
+            #pygame.draw.polygon(ecranPrincipal.screen, (255, 255, 255), ((0, 100), (0, 200), (200, 200), (200, 300), (300, 150), (200, 0), (200, 100)))
+        
+            
+            if glissement:
+                pos = pygame.mouse.get_pos()
+                for corp in Corps:
+                    if corp.id == glissement:
+                        corp.position = [corp.position[0] + (pos[0] - lastMousPos[0]) * ecranPrincipal.camera.echelle, corp.position[1] + (pos[1] - lastMousPos[1]) * ecranPrincipal.camera.echelle]
+                lastMousPos = pos
+                actualizerPositions = True
+            
+            if flecheglissementCorpsId:
+                pos = pygame.mouse.get_pos()
+                for corp in Corps:
+                    if corp.id == flecheglissementCorpsId:
+                        corp.momentum = [corp.momentum[0] + (pos[0] - lastMousPos[0]) * ecranPrincipal.camera.echelle, corp.momentum[1] + (pos[1] - lastMousPos[1]) * ecranPrincipal.camera.echelle]
+                lastMousPos = pos
+                actualizerPositions = True
 
-            # Chargeur de trajectoires       
+            
+            # Trajectories Renderer       
             if dessinerTrajectoires and actualizerPositions:
                 momentDemarrage = time.time()
 
@@ -181,13 +223,13 @@ def Jeu(queuePourInterface, queuePourJeu):
                     nouveauCorps += [copy.copy(corp)]
 
                 trajectoirePositions, couleurs, marquesCollisions = Trajectoires.calculerPositions(nouveauCorps, taillePas * multiplicateurTrajectoire, nombrePas)
-                #couleurs = [(corp.rouge1, corp.vert1, corp.blue1) for corp in Corps]
+                #couleurs = [(corp.rouge1, corp.vert1, corp.bleu1) for corp in Corps]
                 actualizerPositions = False
 
                 print(f"{nombrePas} positions calculees pour {len(Corps)} corps en {time.time() - momentDemarrage}s.")
             
             if dessinerTrajectoires:
-                Trajectoires.dessinerLignes(trajectoirePositions, ecranPrincipal, couleurs, marquesCollisions)
+                Trajectoires.dessinerLignes(trajectoirePositions, ecranPrincipal, couleurs, marquesCollisions, reference)
 
             # Corp renderer
             for corp in Corps:
@@ -197,9 +239,40 @@ def Jeu(queuePourInterface, queuePourJeu):
             for sprite in Renderer:
                 sprite.draw(ecranPrincipal)
 
+            # Affichage fleches
+            if dessinerVecteursVitesse:
+                corpsExistants = set()
+                for corp in Corps:
+                    if corp.id in Fleches:
+                        Fleches[corp.id].debut = corp.position
+                        if reference == None:
+                            Fleches[corp.id].fin = [corp.position[0] + corp.momentum[0], corp.position[1] + corp.momentum[1]]
+                        else:
+                            Fleches[corp.id].fin = [corp.position[0] + corp.momentum[0] - reference.momentum[0], corp.position[1] + corp.momentum[1] - reference.momentum[1]]
+                    else:
+                        if reference == None:
+                            fleche = Fleche(corp.position, [corp.position[0] + corp.momentum[0], corp.position[1] + corp.momentum[1]], 10,
+                                        (abs(corp.rouge1 -255), abs(corp.vert1 -255), abs(corp.bleu1 -255)), 15)
+                        else:
+                            fleche = Fleche(corp.position, [corp.position[0] + corp.momentum[0] - reference.momentum[0], corp.position[1] + corp.momentum[1] - reference.momentum[1]], 10,
+                                        (abs(corp.rouge1 -255), abs(corp.vert1 -255), abs(corp.bleu1 -255)), 15)
+                        Fleches[corp.id] = fleche
+                            
+                    corpsExistants.add(corp.id)
+                
+                flechesToPop = []
+                for fleche in Fleches.keys():
+                    if fleche not in corpsExistants:
+                        flechesToPop.append(fleche)
+                for fleche in flechesToPop:
+                    Fleches.pop(fleche)
+
+                for fleche in Fleches.values():
+                    fleche.draw(ecranPrincipal)
+
             pygame.display.update()
 
-        # Main game loop: simulation
+        # Loop principal de la simulation
         elif etat == 2:
             horloge.tick(60)
             ecranPrincipal.screen.blit(arriere_plan, (0, -2))
@@ -215,8 +288,8 @@ def Jeu(queuePourInterface, queuePourJeu):
                 # Corps
                 # Applique la loi pour tous les corps
                 Corps = LoiGravitation.apply(Corps, taillePas)
-                for corp in Corps:
-                    corp.position = [corp.position[0] + corp.momentum[0], corp.position[1] + corp.momentum[1]]
+                #for corp in Corps:
+                #    corp.position = [corp.position[0] + corp.momentum[0], corp.position[1] + corp.momentum[1]]
                 if updatePerformance:
                     updatePerformance = False
                     print(f"PERFORMANCE UPDATE: Temps de calcul = {time.time() - dernierePerformanceUpdate}s, {(time.time() - dernierePerformanceUpdate) / vitessePas * 100}% de temps de calcul utilisee.")

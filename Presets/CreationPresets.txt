@@ -8,13 +8,13 @@ Corps.append(corp2)
 Presets.SauverPreset("Presets/OrbiteSimple", Corps)
 Corps = []
 
-# Caos
-corp1 = Corp([1, 1], [0, 0], 20999.0, "Sprites/PlanetRed.png", 66, 212, 245)
-corp2 = Corp([0, -3000], [250, 0], 999.0, "Sprites/PlanetRed.png", 66, 245, 66)
-corp3 = Corp([0, -7000], [100, 0], 999.0, "Sprites/PlanetRed.png", 245, 179, 66) 
-corp4 = Corp([0, 7000], [100, 0], 500.0, "Sprites/PlanetRed.png", 168, 50, 155)
-corp5 = Corp([0, 1500], [300, 0], 500.0, "Sprites/PlanetRed.png", 64, 50, 168)
-corp6 = Corp([0, 10000], [0, 50], 500.0, "Sprites/PlanetRed.png", 168, 166, 50)
+# Chaos
+body1 = Body([1, 1], [0, 0], 20999.0, "Sprites/PlanetRed.png", 66, 212, 245)
+body2 = Body([0, -3000], [250, 0], 999.0, "Sprites/PlanetRed.png", 66, 245, 66)
+body3 = Body([0, -7000], [100, 0], 999.0, "Sprites/PlanetRed.png", 245, 179, 66) 
+body4 = Body([0, 7000], [100, 0], 500.0, "Sprites/PlanetRed.png", 168, 50, 155)
+body5 = Body([0, 1500], [300, 0], 500.0, "Sprites/PlanetRed.png", 64, 50, 168)
+body6 = Body([0, 10000], [0, 50], 500.0, "Sprites/PlanetRed.png", 168, 166, 50)
 
 Corps.append(corp1)
 Corps.append(corp2)
@@ -30,22 +30,36 @@ corp1 = Corp([1500, -1000], [15, 3], 1000.0, "Sprites/PlanetRed.png", 0, 0, 255)
 corp2 = Corp([-2500, 0], [10, 0], 3000.0, "Sprites/PlanetRed.png", 255, 0, 0)
 corp3 = Corp([-4500, -1000], [-15, 3], 1000.0, "Sprites/PlanetRed.png", 0, 255, 0)
 
-Corps.append(corp1)
-Corps.append(corp2)
-Corps.append(corp3)
+Corps.append(body1)
+Corps.append(body2)
+Corps.append(body3)
 Presets.SauverPreset("Presets/Collisions", Corps)
 Corps = []
 
+# Solution trois corps
+# Inspiré du papier https://arxiv.org/pdf/math/0011268.pdf par Alain Chenciner et Richard Montgomer
+# Il s'agit d'une solution de leur papier avec quelques erreurs d'application dans la simulation
+corps1 = Body([0.97000436 * 1024, -0.24308753 * 1024], [(0.93240737 / 2) * 32, (0.86473146 / 2) * 32],  157, None, 255, 0, 1)
+corps2 = Body([-0.9700043600 * 1024, 0.24308753 * 1024], [(0.93240737 / 2) * 32, (0.86473146 / 2) * 32], 157, None, 0, 255, 1)
+corps3 = Body([0, 0], [-0.93240737 * 32, -0.86473146 * 32], 157, None, 0, 0, 255)
+
+Corps.append(corps1)
+Corps.append(corps2)
+Corps.append(corps3)
+Presets.SauverPreset("Presets/Solution3Corps", Corps)
+    
 
 # Simulation debut systeme solaire
 for j in range(3):
     for i in range(100):
         pos = [random.randint(-5000, 5000), random.randint(-5000, 5000)]
         momentum = [random.randint(-300, 300), random.randint(-300, 300)]
-        rouge = random.randint(0, 255)
-        vert = random.randint(0, 255)
-        bleu = random.randint(0, 255)
-        corps = Corp(pos, momentum, 300, "Sprites/PlanetRed.png", rouge, vert, bleu)
+        r = random.randint(0, 255)
+        g = random.randint(0, 255)
+        b = random.randint(0, 255)
+        corps = Body(pos, momentum, 300, "Sprites/PlanetRed.png", r, g, b)
         Corps.append(corps)
     Presets.SauverPreset(f"Presets/DebutSystemeSolaire_{j}", Corps)
     Corps = []
+
+    

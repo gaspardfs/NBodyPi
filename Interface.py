@@ -4,6 +4,7 @@ from tkinter import ttk
 from tkinter.colorchooser import askcolor
 import Classes
 import copy
+import sys
 
 def Interface(queuePourInterface, queuePourJeu):
     fenetre = tk.Tk()
@@ -24,6 +25,7 @@ def Interface(queuePourInterface, queuePourJeu):
     vitessePas = 0.2
     pause = True
     nbEtapes = 1000
+    reference = None
     
     Corps = []
     combo_box_corps = None
@@ -144,7 +146,7 @@ def Interface(queuePourInterface, queuePourJeu):
             Corps[i].definirMasse(float(masse))
             Corps[i].rouge1 = int(rouge)
             Corps[i].vert1 = int(vert)
-            Corps[i].blue1 = int(bleu)
+            Corps[i].bleu1 = int(bleu)
             Corps[i].nom = nom
 
 
@@ -166,6 +168,14 @@ def Interface(queuePourInterface, queuePourJeu):
         except:
             print("Erreur de suprimement")
 
+    def appuyer_reference(event):
+        nonlocal i
+        try:
+            reference = Corps[i]
+            envoyerValeurMultiprocessing(reference, 11)
+        except:
+            print("Erreur de référence", file=sys.stderr)
+
     def choisir_couleur():
         couleur = askcolor(title="Choisir une couleur")
         tab_couleur = list(couleur)
@@ -174,7 +184,7 @@ def Interface(queuePourInterface, queuePourJeu):
         if i != None:
             Corps[i].rouge1 = val_rgb[0]
             Corps[i].vert1 = val_rgb[1]
-            Corps[i].blue1 = val_rgb[2]
+            Corps[i].bleu1 = val_rgb[2]
             appuyer_edit(None)
         label_couleur1.config(bg=couleur_hex)
         
@@ -201,11 +211,15 @@ def Interface(queuePourInterface, queuePourJeu):
         btn_enlever.bind("<Button-1>", appuyer_enlever)
         btn_enlever.grid(column = 3, row = 2)
 
+        btn_reference = tk.Button(edition_widget, text = "Utiliser référence", width = 10)
+        btn_reference.grid(column = 4, row = 2)
+        btn_reference.bind("<Button-1>", appuyer_reference)
+
         
-        combo_box_corps = ttk.Combobox(edition_widget, textvariable = rentree_combo_corp, values = Corps, state = "readonly")
-        combo_box_corps.bind('<<ComboboxSelected>>', selectionner_combo_box)
-        combo_box_corps['values'] = tuple([[Corps[i].nom, i] for i in range(len(Corps))])
-        combo_box_corps.grid(column = 1, row = 2)
+        combo_box_Corps = ttk.Combobox(edition_widget, textvariable = rentree_combo_corp, values = Corps, state = "readonly")
+        combo_box_Corps.bind('<<ComboboxSelected>>', selectionner_combo_box)
+        combo_box_Corps['values'] = tuple([[Corps[i].nom, i] for i in range(len(Corps))])
+        combo_box_Corps.grid(column = 1, row = 2)
     
         label_pos = tk.Label(edition_widget, text = "Position")
         label_pos.grid(column = 0, row = 5)
@@ -275,7 +289,7 @@ def Interface(queuePourInterface, queuePourJeu):
         label_couleur1.grid(column = 2, row = 11)
 
         if i != None:
-            combo_box_corps.state = [Corps[i].nom, i]
+            combo_box_Corps.state = [Corps[i].nom, i]
             entree_masse.insert(0, Corps[i].masse)
             entree_pos_x.insert(0, Corps[i].position[0])
             entree_pos_y.insert(0, Corps[i].position[1])
@@ -284,7 +298,7 @@ def Interface(queuePourInterface, queuePourJeu):
             entree_nom.insert(0, Corps[i].nom)
             entree_r.insert(0, Corps[i].rouge1)
             entree_v.insert(0, Corps[i].vert1)
-            entree_b.insert(0, Corps[i].blue1)
+            entree_b.insert(0, Corps[i].bleu1)
             
 
         

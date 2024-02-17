@@ -54,7 +54,7 @@ def fusionnerCorps(corps: list, collision: tuple) -> list:
 
     rouge = int(corps[index1].rouge1 * ratio1 + corps[index2].rouge1 * ratio2)
     vert = int(corps[index1].vert1 * ratio1 + corps[index2].vert1 * ratio2)
-    bleu = int(corps[index1].blue1 * ratio1 + corps[index2].blue1 * ratio2)
+    bleu = int(corps[index1].bleu1 * ratio1 + corps[index2].bleu1 * ratio2)
 
     nouvCorps = Corp(position, momentum, massJointe, "Sprites/PlanetRed.png", rouge, vert, bleu, "Corp", uuid.uuid4())
     nouvCorps.id = uuid.uuid4()

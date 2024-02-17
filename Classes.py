@@ -4,6 +4,8 @@ from PIL import ImageTk, Image
 import pygame
 from pygame.locals import *
 import math
+import uuid
+from shapely.geometry import Point, Polygon
 
 
 
@@ -46,6 +48,13 @@ class Camera:
         return (position, echelle)
 
 
+    def EstVisible(self, PositionEcran):
+        if PositionEcran[0] < 0 or PositionEcran[1] < 0 or PositionEcran[0] > self.Dimensions[0] or PositionEcran[1] > self.Dimensions[1]:
+            return False
+        return True
+        
+
+
 class Sprite:
     def __init__(self, image, position=[0, 0]) -> None:
         self.imagePath = image
@@ -81,11 +90,10 @@ class Sprite:
         self.realPosition = position
         ecranPrincipal.screen.blit(image, tuple(position))
 
-
-rayonMasseMultiplier = 1500 # Densité des planètes
+rayonMasseMultiplicateur = 1500 # Densité des planètes
 
 class Corp:
-    def __init__(self, position=[0, 0], momentum=[0, 0], masse=0, sprite=None, rouge1=255, vert1=255, blue1=255, nom="Corp", id = -1):
+    def __init__(self, position=[0, 0], momentum=[0, 0], masse=0, sprite=None, rouge1=255, vert1=255, bleu1=255, nom="Corp", id = -1):
 
         # Traitement de couleur
         img_colorie = Image.open("Sprites/PlanetRed.png")
@@ -96,26 +104,24 @@ class Corp:
         for i in range(img_colorie1.size[0]):
             for j in range(img_colorie1.size[1]):
                 (rouge, vert, bleu, alpha) = pimg[i, j]
-                pimg1[i, j] = (rouge1, vert1, blue1, alpha)
+                pimg1[i, j] = (rouge1, vert1, bleu1, alpha)
         img_colorie1.save("Sprites/img_colorie1.png")
         pygame.image.load("Sprites/img_colorie1.png")
         self.sprite = Sprite("Sprites/img_colorie1.png", position)
-        self.rouge1, self.vert1, self.blue1 = rouge1, vert1, blue1
+        self.rouge1, self.vert1, self.bleu1 = rouge1, vert1, bleu1
 
         self.position = position
         self.momentum = momentum
         self.definirMasse(masse)
         self.nom = nom
-
-    
-    def setRayon(self, rayon):
-        print("Plus utilisée car c'est fait automatiquement.")
-        self.sprite.defEchelle(int(rayon / 16))
-        self.rayon = rayon
+        if id == -1:
+            self.id = uuid.uuid4()
+        else:
+            self.id = id
 
     def definirMasse(self, masse):
-        self.masse = masse
-        self.rayon = (masse * rayonMasseMultiplier) ** (1. / 3) 
+        self.masse = masse 
+        self.rayon = (masse * rayonMasseMultiplicateur) ** (1. / 3) 
         self.sprite.defEchelle(int(self.rayon / 16))
 
     def rechargerSprite(self):
@@ -129,7 +135,7 @@ class Corp:
         for i in range(img_colorie1.size[0]):
             for j in range(img_colorie1.size[1]):
                 (rouge, vert, bleu, alpha) = pimg[i, j]
-                pimg1[i, j] = (self.rouge1, self.vert1, self.blue1, alpha)
+                pimg1[i, j] = (self.rouge1, self.vert1, self.bleu1, alpha)
         img_colorie1.save("Sprites/img_colorie1.png")
         pygame.image.load("Sprites/img_colorie1.png")
         self.sprite = Sprite("Sprites/img_colorie1.png", self.position)
@@ -148,4 +154,57 @@ class Corp:
         vecteur = [math.cos(v_angle) * delta_momentum, math.sin(v_angle) * delta_momentum]
         self.momentum = [self.momentum[0] + vecteur[0], self.momentum[1] + vecteur[1]]
 
+class Fleche:
+    def __init__(self, debut=[0, 0], fin=[0, 0], largeur=10, couleur=(255, 255, 255), dimensionsPointe = 8):
+        self.debut = debut
+        self.fin = fin
+        self.largeur = largeur
+        self.couleur = couleur
+        self.dimensionsPointe = dimensionsPointe
     
+    def draw(self, ecranPrincipal):
+        # Code non original
+        debut, echelle = ecranPrincipal.camera.CalculerPosEtEchelleParCamera(self.debut)
+        fin, echelle = ecranPrincipal.camera.CalculerPosEtEchelleParCamera(self.fin)
+        rad = math.pi / 180
+
+        pygame.draw.line(ecranPrincipal.screen, self.couleur, debut, fin, self.largeur)
+        rotation = (math.atan2(debut[1] - fin[1], fin[0] - debut[0])) + math.pi/2
+        pygame.draw.polygon(ecranPrincipal.screen, self.couleur, ((fin[0] + self.dimensionsPointe * math.sin(rotation),
+                                        fin[1] + self.dimensionsPointe * math.cos(rotation)),
+                                    (fin[0] + self.dimensionsPointe * math.sin(rotation - 120*rad),
+                                        fin[1] + self.dimensionsPointe * math.cos(rotation - 120*rad)),
+                                    (fin[0] + self.dimensionsPointe * math.sin(rotation + 120*rad),
+                                        fin[1] + self.dimensionsPointe * math.cos(rotation + 120*rad))))
+
+    
+    def PointDansFleche(self, ecranPrincipal, point):
+        # Code non original
+        debut, echelle = ecranPrincipal.camera.CalculerPosEtEchelleParCamera(self.debut)
+        fin, echelle = ecranPrincipal.camera.CalculerPosEtEchelleParCamera(self.fin)
+        point = Point(point)
+
+        rad = math.pi / 180
+        pygame.draw.line(ecranPrincipal.screen, self.couleur, debut, fin, self.largeur)
+        rotation = (math.atan2(debut[1] - fin[1], fin[0] - debut[0])) + math.pi/2
+        dimensions = ((fin[0] + self.dimensionsPointe * math.sin(rotation),
+                                        fin[1] + self.dimensionsPointe * math.cos(rotation)),
+                                       (fin[0] + self.dimensionsPointe * math.sin(rotation - 120*rad),
+                                        fin[1] + self.dimensionsPointe * math.cos(rotation - 120*rad)),
+                                       (fin[0] + self.dimensionsPointe * math.sin(rotation + 120*rad),
+                                        fin[1] + self.dimensionsPointe * math.cos(rotation + 120*rad)))
+        dimensions = Polygon(dimensions)
+        
+        if point.within(dimensions):
+            return True
+        
+        dimensions = ((debut[0] - self.largeur / 2, debut[1] + self.largeur / 2),
+                      (fin[0] + self.largeur / 2, fin[1] + self.largeur / 2),
+                      (fin[0] + self.largeur / 2, fin[1] - self.largeur / 2),
+                      (debut[0] - self.largeur / 2, debut[1] - self.largeur / 2))
+        dimensions = Polygon(dimensions)
+        if point.within(dimensions):
+            return True
+        return False
+
+

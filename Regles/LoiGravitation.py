@@ -28,10 +28,23 @@ def apply(corps : list, taillePas) -> list:
                 x = corps[j].position[0] - corps[i].position[0]
                 y = corps[j].position[1] - corps[i].position[1]
 
-                vectorItoJ = math.atan2(y, x)
-                vectorJtoI = vectorItoJ - math.pi
+                accelerationI = force * taillePas / corps[i].masse
+                accelerationJ = force * taillePas / corps[j].masse
+                try:
+                    vecteurI = [x * (accelerationI / distance), y * (accelerationI / distance)]
+                    vecteurJ = [-x * (accelerationJ / distance), -y * (accelerationJ / distance)]
+                except:
+                    vecteurI = [0, 0]
+                    vecteurJ = [0, 0]
+
+                corps[i].momentum = [corps[i].momentum[0] + vecteurI[0],
+                                      corps[i].momentum[1] + vecteurI[1]]
+                corps[j].momentum = [corps[j].momentum[0] + vecteurJ[0],
+                                      corps[j].momentum[1] + vecteurJ[1]]
                 
-                corps[i].apply_force(force * taillePas, vectorItoJ)
-                corps[j].apply_force(force * taillePas, vectorJtoI)
                 couples_appliques += [[i, j]]
+
+    for corp in corps:
+        corp.position = [corp.position[0] + corp.momentum[0],
+                         corp.position[1] + corp.momentum[1]]
     return corps
