@@ -1,4 +1,5 @@
 Cela contient tous les commandes pour creer les presets
+Attention, quelques commandes sont anciennes et ne foncionnent plus dans les versions actuelles
 
 # Orbite
 corp1 = Corp([1, 1], [0, 0], 20999.0, "Sprites/PlanetRed.png", 66, 212, 245)

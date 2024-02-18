@@ -51,12 +51,13 @@ def fusionnerCorps(corps: list, collision: tuple) -> list:
     positionx =  corps[index1].position[0] * ratio1 + corps[index2].position[0] * ratio2
     positiony =  corps[index1].position[1] * ratio1 + corps[index2].position[1] * ratio2
     position = [positionx, positiony]
+    
+    rouge = int(corps[index1].couleur[0] * ratio1 + corps[index2].couleur[0] * ratio2)
+    vert = int(corps[index1].couleur[1] * ratio1 + corps[index2].couleur[1] * ratio2)
+    bleu = int(corps[index1].couleur[2] * ratio1 + corps[index2].couleur[2] * ratio2)
+    couleur = (rouge, vert, bleu)
 
-    rouge = int(corps[index1].rouge1 * ratio1 + corps[index2].rouge1 * ratio2)
-    vert = int(corps[index1].vert1 * ratio1 + corps[index2].vert1 * ratio2)
-    bleu = int(corps[index1].bleu1 * ratio1 + corps[index2].bleu1 * ratio2)
-
-    nouvCorps = Corp(position, momentum, massJointe, "Sprites/PlanetRed.png", rouge, vert, bleu, "Corp", uuid.uuid4())
+    nouvCorps = Corp(position, momentum, massJointe, "Sprites/PlanetRed.png", couleur, "Corp", uuid.uuid4())
     nouvCorps.id = uuid.uuid4()
     # Enleve les anciens corps
     if index2 > index1:

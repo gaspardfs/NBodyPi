@@ -1,11 +1,10 @@
 from Regles import LoiGravitation
 from Regles import LoiGravitationLeapfrog
-import pygame
 from pygame.locals import *
-import Classes
 import Collisions
 import copy
 import uuid
+import pygame
 
 
 
@@ -23,7 +22,7 @@ def calculerPositions(Corps, taillePas, pas):
     marquesColisions = []
     couleurs = {}
     for corp in Corps:
-        couleurs[corp.id] = [corp.rouge1, corp.vert1, corp.bleu1]
+        couleurs[corp.id] = [corp.couleur]
         
 
     for i in range(pas):
@@ -37,7 +36,7 @@ def calculerPositions(Corps, taillePas, pas):
 
         if len(prochainesPositions) != len(lastCorps):
             for corp in prochainesPositions: 
-                couleurs[corp.id] = [corp.rouge1, corp.vert1, corp.bleu1]
+                couleurs[corp.id] = [corp.couleur]
                 if corp.id not in lastCorps:
                     marquesColisions.append(corp)
                     lastCorps.append(corp.id)
@@ -90,16 +89,14 @@ def dessinerLignes(positions, ecranPrincipal, couleursDesCorps, marquesColisions
     for corp in Corps:
         for i in range(1, len(corp)):
             try:
-                pygame.draw.line(ecranPrincipal.screen, (corp[0][0], corp[0][1], corp[0][2]), corp[i][0], corp[i][1], 2)
+                pygame.draw.line(ecranPrincipal.screen, corp[0][0], corp[i][0], corp[i][1], 2)
             except:
                 pass
     
 
     for collision in marquesColisions:
         collision = copy.copy(collision)
-        collision.rouge1 = int(collision.rouge1 * 0.6)
-        collision.vert1 = int(collision.vert1 * 0.6)
-        collision.bleu1 = int(collision.bleu1 * 0.6)
+        collision.couleur = (int(collision.couleur[0] * 0.6), int(collision.couleur[1] * 0.6), int(collision.couleur[2] * 0.6))
         collision.rechargerSprite()
         collision.sprite.draw(ecranPrincipal)
 

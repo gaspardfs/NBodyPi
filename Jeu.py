@@ -223,7 +223,6 @@ def Jeu(queuePourInterface, queuePourJeu):
                     nouveauCorps += [copy.copy(corp)]
 
                 trajectoirePositions, couleurs, marquesCollisions = Trajectoires.calculerPositions(nouveauCorps, taillePas * multiplicateurTrajectoire, nombrePas)
-                #couleurs = [(corp.rouge1, corp.vert1, corp.bleu1) for corp in Corps]
                 actualizerPositions = False
 
                 print(f"{nombrePas} positions calculees pour {len(Corps)} corps en {time.time() - momentDemarrage}s.")
@@ -252,10 +251,10 @@ def Jeu(queuePourInterface, queuePourJeu):
                     else:
                         if reference == None:
                             fleche = Fleche(corp.position, [corp.position[0] + corp.momentum[0], corp.position[1] + corp.momentum[1]], 10,
-                                        (abs(corp.rouge1 -255), abs(corp.vert1 -255), abs(corp.bleu1 -255)), 15)
+                                        (abs(corp.couleur[0] -255), abs(corp.couleur[1] -255), abs(corp.couleur[2] -255)), 15)
                         else:
                             fleche = Fleche(corp.position, [corp.position[0] + corp.momentum[0] - reference.momentum[0], corp.position[1] + corp.momentum[1] - reference.momentum[1]], 10,
-                                        (abs(corp.rouge1 -255), abs(corp.vert1 -255), abs(corp.bleu1 -255)), 15)
+                                        (abs(corp.couleur[0] -255), abs(corp.couleur[1] -255), abs(corp.couleur[2] -255)), 15)
                         Fleches[corp.id] = fleche
                             
                     corpsExistants.add(corp.id)

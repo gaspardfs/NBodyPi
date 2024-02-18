@@ -6,6 +6,7 @@ from pygame.locals import *
 import math
 import uuid
 from shapely.geometry import Point, Polygon
+import os
 
 
 
@@ -54,10 +55,8 @@ class Camera:
         return True
         
 
-
 class Sprite:
     def __init__(self, image, position=[0, 0]) -> None:
-        self.imagePath = image
         self.image = pygame.image.load(image)
         # position est le centre de l'image
         self.position = position
@@ -85,7 +84,6 @@ class Sprite:
             self.image,
             [int(image.get_width() * echelle), int(image.get_height() * echelle)],
         )
-        self.realImage = image
         self.realRayon = image.get_width() / 2
         self.realPosition = position
         ecranPrincipal.screen.blit(image, tuple(position))
@@ -93,23 +91,23 @@ class Sprite:
 rayonMasseMultiplicateur = 1500 # Densité des planètes
 
 class Corp:
-    def __init__(self, position=[0, 0], momentum=[0, 0], masse=0, sprite=None, rouge1=255, vert1=255, bleu1=255, nom="Corp", id = -1):
+    def __init__(self, position=[0, 0], momentum=[0, 0], masse=0, sprite=None, couleur = (255, 255, 255), nom="Corp", id = -1):
 
         # Traitement de couleur
         img_colorie = Image.open("Sprites/PlanetRed.png")
-        img_colorie.save("Sprites/img_colorie.png")
-        img_colorie1 = img_colorie.copy()
+        img_colorie1 = Image.open("Sprites/PlanetRed.png")
         pimg = img_colorie.load()
         pimg1 = img_colorie1.load()
         for i in range(img_colorie1.size[0]):
             for j in range(img_colorie1.size[1]):
                 (rouge, vert, bleu, alpha) = pimg[i, j]
-                pimg1[i, j] = (rouge1, vert1, bleu1, alpha)
+                pimg1[i, j] = (couleur[0], couleur[1], couleur[2], alpha)
         img_colorie1.save("Sprites/img_colorie1.png")
-        pygame.image.load("Sprites/img_colorie1.png")
         self.sprite = Sprite("Sprites/img_colorie1.png", position)
-        self.rouge1, self.vert1, self.bleu1 = rouge1, vert1, bleu1
+        os.remove("Sprites/img_colorie1.png")
+        self.couleur = couleur
 
+        # Autres valeurs
         self.position = position
         self.momentum = momentum
         self.definirMasse(masse)
@@ -126,26 +124,23 @@ class Corp:
 
     def rechargerSprite(self):
         '''Recharge les images (Pour pouvoir sauver les images)'''
-        echelle = self.sprite.echelle
         img_colorie = Image.open("Sprites/PlanetRed.png")
-        img_colorie.save("Sprites/img_colorie.png")
-        img_colorie1 = img_colorie.copy()
+        img_colorie1 = Image.open("Sprites/PlanetRed.png")
         pimg = img_colorie.load()
         pimg1 = img_colorie1.load()
         for i in range(img_colorie1.size[0]):
             for j in range(img_colorie1.size[1]):
                 (rouge, vert, bleu, alpha) = pimg[i, j]
-                pimg1[i, j] = (self.rouge1, self.vert1, self.bleu1, alpha)
+                pimg1[i, j] = (self.couleur[0], self.couleur[1], self.couleur[2], alpha)
         img_colorie1.save("Sprites/img_colorie1.png")
-        pygame.image.load("Sprites/img_colorie1.png")
-        self.sprite = Sprite("Sprites/img_colorie1.png", self.position)
+        self.sprite.image = pygame.image.load("Sprites/img_colorie1.png")
+        os.remove("Sprites/img_colorie1.png")
         self.sprite.defEchelle(int(self.rayon / 16))
 
     def draw(self, ecranPrincipal):
         if self.sprite != None:
             self.sprite.position = self.position
             self.sprite.draw(ecranPrincipal)
-
 
     def apply_force(self, force, v_angle):
         if self.masse == 0:

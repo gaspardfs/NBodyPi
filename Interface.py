@@ -100,7 +100,7 @@ def Interface(queuePourInterface, queuePourJeu):
     def appuyer_sauvegarderPreset(event):
         directoire = filed.asksaveasfile(defaultextension="")
         if directoire != "":
-            envoyerValeurMultiprocessing(directoire.nom, 2)
+            envoyerValeurMultiprocessing(directoire.name, 2)
 
     def actualiserSimulation(vitessePasA):
         try:
@@ -144,9 +144,7 @@ def Interface(queuePourInterface, queuePourJeu):
             Corps[i].position = [float(position[0]), float(position[1])]
             Corps[i].momentum =  [float(momentum[0]), float(momentum[1])]
             Corps[i].definirMasse(float(masse))
-            Corps[i].rouge1 = int(rouge)
-            Corps[i].vert1 = int(vert)
-            Corps[i].bleu1 = int(bleu)
+            Corps[i].couleur = (int(rouge), int(vert), int(bleu))
             Corps[i].nom = nom
 
 
@@ -182,9 +180,7 @@ def Interface(queuePourInterface, queuePourJeu):
         couleur_hex = str(tab_couleur[1])
         val_rgb = list(couleur[0])
         if i != None:
-            Corps[i].rouge1 = val_rgb[0]
-            Corps[i].vert1 = val_rgb[1]
-            Corps[i].bleu1 = val_rgb[2]
+            Corps[i].couleur = (val_rgb[0], val_rgb[1], val_rgb[2])
             appuyer_edit(None)
         label_couleur1.config(bg=couleur_hex)
         
@@ -296,9 +292,9 @@ def Interface(queuePourInterface, queuePourJeu):
             entree_momentum_x.insert(0, Corps[i].momentum[0])
             entree_momentum_y.insert(0, Corps[i].momentum[1])
             entree_nom.insert(0, Corps[i].nom)
-            entree_r.insert(0, Corps[i].rouge1)
-            entree_v.insert(0, Corps[i].vert1)
-            entree_b.insert(0, Corps[i].bleu1)
+            entree_r.insert(0, Corps[i].couleur[0])
+            entree_v.insert(0, Corps[i].couleur[1])
+            entree_b.insert(0, Corps[i].couleur[2])
             
 
         

@@ -1,3 +1,0 @@
-sun = Corp([300, 300], [0, -5], 1.989, "Sprites/PlanetRed.png", 255, 172, 28)
-mercur = Corp([300, 62.981], [0, -5], 0.3, "Sprites/PlanetRed.png", 211, 211, 211)
-
