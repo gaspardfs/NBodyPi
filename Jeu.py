@@ -55,6 +55,7 @@ def Jeu(queuePourInterface, queuePourJeu):
     couleurs = None
 
     ecranPrincipal = Screen(appDimensions[0], appDimensions[1])
+    ecranPrincipal.camera.AddZoom(1500)
     pygame.init()
     horloge = pygame.time.Clock()
 
@@ -62,6 +63,9 @@ def Jeu(queuePourInterface, queuePourJeu):
     arriere_plan.fill("black")
     pygame.mouse.set_visible(1)
     pygame.display.set_caption("Gravi Sim (Q/Esc pour sortir)")
+
+    # Texte
+    coordCamera = pygame.font.Font(pygame.font.get_default_font(), 14)
 
 
     # LISTE DE RENDERIZATION ET SIMULATION
@@ -145,7 +149,7 @@ def Jeu(queuePourInterface, queuePourJeu):
         return nouvCorps
         
     def recevoirMultiprocessing():
-        nonlocal etat, compteurPas, vitessePas, actualizerPositions, Corps, pause, nouveauPas, Corps, actualizerPositions, dessinerTrajectoires
+        nonlocal etat, compteurPas, vitessePas, actualizerPositions, Corps, pause, nouveauPas, Corps, dessinerTrajectoires
         nonlocal reference
         nonlocal nombrePas
         nouvellesCommandes = []
@@ -175,9 +179,7 @@ def Jeu(queuePourInterface, queuePourJeu):
                 nombrePas = valeur[1]
                 actualizerPositions = True
             elif valeur[0] == 11:
-                reference = valeur[1]
-        
-                
+                reference = valeur[1]                 
         for commande in nouvellesCommandes:
             envoyerValeurMultiprocessing(commande[0], commande[1])
     
@@ -187,15 +189,13 @@ def Jeu(queuePourInterface, queuePourJeu):
     while True:
         # Loop principal de l'édition
 
+
         if etat == 1:
             horloge.tick(60)
             ecranPrincipal.screen.blit(arriere_plan, (0, -2))
             gestionnaireEvenements()
             recevoirMultiprocessing()
 
-            #pygame.draw.polygon(ecranPrincipal.screen, (255, 255, 255), ((0, 100), (0, 200), (200, 200), (200, 300), (300, 150), (200, 0), (200, 100)))
-        
-            
             if glissement:
                 pos = pygame.mouse.get_pos()
                 for corp in Corps:
@@ -203,6 +203,7 @@ def Jeu(queuePourInterface, queuePourJeu):
                         corp.position = [corp.position[0] + (pos[0] - lastMousPos[0]) * ecranPrincipal.camera.echelle, corp.position[1] + (pos[1] - lastMousPos[1]) * ecranPrincipal.camera.echelle]
                 lastMousPos = pos
                 actualizerPositions = True
+                envoyerValeurMultiprocessing(7, preparePickling(Corps))
             
             if flecheglissementCorpsId:
                 pos = pygame.mouse.get_pos()
@@ -211,11 +212,13 @@ def Jeu(queuePourInterface, queuePourJeu):
                         corp.momentum = [corp.momentum[0] + (pos[0] - lastMousPos[0]) * ecranPrincipal.camera.echelle, corp.momentum[1] + (pos[1] - lastMousPos[1]) * ecranPrincipal.camera.echelle]
                 lastMousPos = pos
                 actualizerPositions = True
+                envoyerValeurMultiprocessing(7, preparePickling(Corps))
 
             
             # Trajectories Renderer       
-            if dessinerTrajectoires and actualizerPositions:
+            if dessinerTrajectoires and actualizerPositions and len(Corps) > 0:
                 momentDemarrage = time.time()
+                actualizerPositions = False
 
                 # Copie les corps individuelement (sinon il ne marche pas)
                 nouveauCorps = []
@@ -223,7 +226,6 @@ def Jeu(queuePourInterface, queuePourJeu):
                     nouveauCorps += [copy.copy(corp)]
 
                 trajectoirePositions, couleurs, marquesCollisions = Trajectoires.calculerPositions(nouveauCorps, taillePas * multiplicateurTrajectoire, nombrePas)
-                actualizerPositions = False
 
                 print(f"{nombrePas} positions calculees pour {len(Corps)} corps en {time.time() - momentDemarrage}s.")
             
@@ -268,6 +270,12 @@ def Jeu(queuePourInterface, queuePourJeu):
 
                 for fleche in Fleches.values():
                     fleche.draw(ecranPrincipal)
+            
+            # Camera
+            texte = coordCamera.render(f"({int(ecranPrincipal.camera.position[0])}; {int(ecranPrincipal.camera.position[1])}, {round(ecranPrincipal.camera.echelle, 1)}x)", False, (255, 255, 255), (0, 0, 0))
+            texteRect = texte.get_rect().center = (10, 10)
+            ecranPrincipal.screen.blit(texte, texteRect)
+
 
             pygame.display.update()
 
@@ -308,6 +316,11 @@ def Jeu(queuePourInterface, queuePourJeu):
             # Renderer
             for sprite in Renderer:
                 sprite.draw(ecranPrincipal)
+
+            # Camera
+            texte = coordCamera.render(f"({int(ecranPrincipal.camera.position[0])}; {int(ecranPrincipal.camera.position[1])}, {round(ecranPrincipal.camera.echelle, 1)}x)", False, (255, 255, 255), (0, 0, 0))
+            texteRect = texte.get_rect().center = (10, 10)
+            ecranPrincipal.screen.blit(texte, texteRect)
 
 
             pygame.display.update()
