@@ -25,9 +25,13 @@ def ChargerPreset(directoire) -> list:
         with open(directoire, "rb") as f:
             startTime = time.time()
             Corps = pickle.load(f)
+            nNouvCorp = 1
             for corp in Corps:
                 corp.rechargerSprite()
                 corp.id = uuid.uuid4() # compatibilité avec ancien presets
+                if corp.nom == "Body" or corp.nom == "Corp":
+                    corp.nom = f"Corp {nNouvCorp}"
+                    nNouvCorp += 1
 
             print(f"Temps de chargement {time.time() - startTime}s.")
         

@@ -26,10 +26,11 @@ def Interface(queuePourInterface, queuePourJeu):
     pause = True
     nbEtapes = 1000
     reference = None
+    nNouvCorp = 1
     
     Corps = []
     combo_box_corps = None
-    rentree_combo_corp = tk.StringVar()
+    rentree_combo_corp = tk.StringVar(value="Selectionner un corps")
     champ_etapes = tk.StringVar()
     i = None
     trajectoires_visibles = False
@@ -87,22 +88,27 @@ def Interface(queuePourInterface, queuePourJeu):
         envoyerValeurMultiprocessing(5, True)
 
     def appuyer_chargerPreset(event):
+        nonlocal i, rentree_combo_corp
         directoire = filed.askopenfilename()
         if directoire != "":
             envoyerValeurMultiprocessing(directoire, 1)
+            envoyerValeurMultiprocessing(0, 8)
             recevoirMultiprocessing()
             while queuePourInterface.empty():
                 continue
+            i = None
+            rentree_combo_corp = tk.StringVar(value="Selectionner un corps")
             recevoirMultiprocessing()
             appuyer_edit(None)
             
 
     def appuyer_sauvegarderPreset(event):
-        directoire = filed.asksaveasfile(defaultextension="")
+        directoire = filed.asksaveasfile(defaultextension="/Presets")
         if directoire != "":
             envoyerValeurMultiprocessing(directoire.name, 2)
 
     def actualiserSimulation(vitessePasA):
+        recevoirMultiprocessing()
         try:
             vitessePasA = float(vitessePasA)
         except:
@@ -135,17 +141,24 @@ def Interface(queuePourInterface, queuePourJeu):
 
     
     def selectionner_combo_box(event):
-        nonlocal i
-        i = int([str(elt) for elt in rentree_combo_corp.get()][-1])
+        nonlocal i, Corps
+        for j in range(len(Corps)):
+            if Corps[j].nom == rentree_combo_corp.get():
+                i = j
         appuyer_edit(None)
     
     def appuyer_actualiser(position, momentum, masse, nom, rouge, vert, bleu):
+        nonlocal Corps
+        recevoirMultiprocessing()
         try:
             Corps[i].position = [float(position[0]), float(position[1])]
             Corps[i].momentum =  [float(momentum[0]), float(momentum[1])]
             Corps[i].definirMasse(float(masse))
             Corps[i].couleur = (int(rouge), int(vert), int(bleu))
-            Corps[i].nom = nom
+            if nom not in [Corps[i].nom for i in range(len(Corps))]:
+                Corps[i].nom = nom
+            else:
+                print("Nom déjà")
 
 
             envoyerListeCorps()
@@ -153,11 +166,18 @@ def Interface(queuePourInterface, queuePourJeu):
             print("Valeur(s) invalide(s)!")
 
     def appuyer_ajouter(event):
+        nonlocal nNouvCorp, i, rentree_combo_corp
+        recevoirMultiprocessing()
         nouveau_corps = Classes.Corp()
+        nouveau_corps.nom = f"Corp {nNouvCorp}"
+        rentree_combo_corp = tk.StringVar(value=nouveau_corps.nom)
         Corps.append(nouveau_corps)
+        i = len(Corps) - 1
+        nNouvCorp += 1
         appuyer_edit(None)  
 
     def appuyer_enlever(event):
+        recevoirMultiprocessing()
         nonlocal i
         try:
             Corps.pop(i)
@@ -167,6 +187,7 @@ def Interface(queuePourInterface, queuePourJeu):
             print("Erreur de suprimement")
 
     def appuyer_reference(event):
+        recevoirMultiprocessing()
         nonlocal i
         try:
             reference = Corps[i]
@@ -175,6 +196,7 @@ def Interface(queuePourInterface, queuePourJeu):
             print("Erreur de référence", file=sys.stderr)
 
     def choisir_couleur():
+        recevoirMultiprocessing()
         couleur = askcolor(title="Choisir une couleur")
         tab_couleur = list(couleur)
         couleur_hex = str(tab_couleur[1])
@@ -185,10 +207,12 @@ def Interface(queuePourInterface, queuePourJeu):
         label_couleur1.config(bg=couleur_hex)
         
     def appuyer_edit(event):
-        nonlocal combo_box_corps, rentree_combo_corp
+        nonlocal combo_box_corps, rentree_combo_corp, Corps
         etat = 1
         envoyerValeurMultiprocessing(1, 0)
-        nonlocal edition_widget, simulation_widget, Corps
+        envoyerValeurMultiprocessing(0, 8)
+
+        nonlocal edition_widget, simulation_widget
         cacher_frames()
         
         try:
@@ -214,7 +238,7 @@ def Interface(queuePourInterface, queuePourJeu):
         
         combo_box_Corps = ttk.Combobox(edition_widget, textvariable = rentree_combo_corp, values = Corps, state = "readonly")
         combo_box_Corps.bind('<<ComboboxSelected>>', selectionner_combo_box)
-        combo_box_Corps['values'] = tuple([[Corps[i].nom, i] for i in range(len(Corps))])
+        combo_box_Corps['values'] = tuple([Corps[i].nom for i in range(len(Corps))])
         combo_box_Corps.grid(column = 1, row = 2)
     
         label_pos = tk.Label(edition_widget, text = "Position")
@@ -295,6 +319,7 @@ def Interface(queuePourInterface, queuePourJeu):
             entree_r.insert(0, Corps[i].couleur[0])
             entree_v.insert(0, Corps[i].couleur[1])
             entree_b.insert(0, Corps[i].couleur[2])
+            envoyerValeurMultiprocessing(12, Corps[i].id)
             
 
         

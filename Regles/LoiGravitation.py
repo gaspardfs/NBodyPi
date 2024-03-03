@@ -28,8 +28,15 @@ def apply(corps : list, taillePas) -> list:
                 x = corps[j].position[0] - corps[i].position[0]
                 y = corps[j].position[1] - corps[i].position[1]
 
-                accelerationI = force * taillePas / corps[i].masse
-                accelerationJ = force * taillePas / corps[j].masse
+                if corps[i].masse != 0:
+                    accelerationI = force * taillePas / corps[i].masse
+                else:
+                    accelerationI = 0
+                if corps[j].masse != 0:
+                    accelerationJ = force * taillePas / corps[j].masse
+                else:
+                    accelerationJ = 0
+                    
                 try:
                     vecteurI = [x * (accelerationI / distance), y * (accelerationI / distance)]
                     vecteurJ = [-x * (accelerationJ / distance), -y * (accelerationJ / distance)]

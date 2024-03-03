@@ -40,6 +40,7 @@ def Jeu(queuePourInterface, queuePourJeu):
     glissement = None
     dragCheck = False
     flecheglissementCorpsId = None
+    
 
     # Statistique
     intervaleDePerformanceUpdate = 10 # Temps en seconde entre evaluations de performance
@@ -52,6 +53,7 @@ def Jeu(queuePourInterface, queuePourJeu):
     # VARIABLES DU PROGRAMME
     actualizerPositions = True
     trajectoirePositions = None
+    marquesCollisions = []
     couleurs = None
 
     ecranPrincipal = Screen(appDimensions[0], appDimensions[1])
@@ -173,7 +175,8 @@ def Jeu(queuePourInterface, queuePourJeu):
                     corp.rechargerSprite()
                 actualizerPositions = True
                 dessinerTrajectoires = True
-            elif valeur[0] == 8: actualizerPositions = True
+            elif valeur[0] == 8: 
+                actualizerPositions = True
             elif valeur[0] == 9: dessinerTrajectoires = valeur[1]
             elif valeur[0] == 10: 
                 nombrePas = valeur[1]
@@ -185,6 +188,7 @@ def Jeu(queuePourInterface, queuePourJeu):
     
     dernierePerformanceUpdate = 0
     updatePerformance = True
+    derniereActualisationTrajectoires = 0
 
     while True:
         # Loop principal de l'édition
@@ -219,17 +223,18 @@ def Jeu(queuePourInterface, queuePourJeu):
             if dessinerTrajectoires and actualizerPositions and len(Corps) > 0:
                 momentDemarrage = time.time()
                 actualizerPositions = False
-
                 # Copie les corps individuelement (sinon il ne marche pas)
                 nouveauCorps = []
                 for corp in Corps:
                     nouveauCorps += [copy.copy(corp)]
 
                 trajectoirePositions, couleurs, marquesCollisions = Trajectoires.calculerPositions(nouveauCorps, taillePas * multiplicateurTrajectoire, nombrePas)
-
-                print(f"{nombrePas} positions calculees pour {len(Corps)} corps en {time.time() - momentDemarrage}s.")
+                
+                if time.time() - derniereActualisationTrajectoires >= 5:
+                    print(f"{nombrePas} positions calculees pour {len(Corps)} corps en {time.time() - momentDemarrage}s.")
+                    derniereActualisationTrajectoires = time.time()
             
-            if dessinerTrajectoires:
+            if dessinerTrajectoires and trajectoirePositions != None:
                 Trajectoires.dessinerLignes(trajectoirePositions, ecranPrincipal, couleurs, marquesCollisions, reference)
 
             # Corp renderer
@@ -242,17 +247,29 @@ def Jeu(queuePourInterface, queuePourJeu):
 
             # Affichage fleches
             if dessinerVecteursVitesse:
+                #plusGrandVecteur = 0
+                #for corp in Corps:
+                #    #print(f"{corp.nom}, {ecranPrincipal.camera.EstVisible(corp.position)}")
+                #    if ecranPrincipal.camera.EstVisible(corp.position) and math.sqrt(corp.momentum[0]**2 + corp.momentum[1]**2) > plusGrandVecteur:
+                #        plusGrandVecteur = math.sqrt(corp.momentum[0]**2 + corp.momentum[1]**2)
+                #
+                #if plusGrandVecteur != 0:
+                #    multiplicateurVecteur = int(ecranPrincipal.width * ecranPrincipal.camera.echelle / 5 / plusGrandVecteur)
+                #else:
+                #    multiplicateurVecteur = 1
+                multiplicateurVecteur = 1
+                    
                 corpsExistants = set()
                 for corp in Corps:
                     if corp.id in Fleches:
                         Fleches[corp.id].debut = corp.position
                         if reference == None:
-                            Fleches[corp.id].fin = [corp.position[0] + corp.momentum[0], corp.position[1] + corp.momentum[1]]
+                            Fleches[corp.id].fin = [(corp.position[0] + corp.momentum[0] * multiplicateurVecteur), (corp.position[1] + corp.momentum[1] * multiplicateurVecteur)]
                         else:
-                            Fleches[corp.id].fin = [corp.position[0] + corp.momentum[0] - reference.momentum[0], corp.position[1] + corp.momentum[1] - reference.momentum[1]]
+                            Fleches[corp.id].fin = [(corp.position[0] + (corp.momentum[0] - reference.momentum[0]) * multiplicateurVecteur), (corp.position[1] + (corp.momentum[1] - reference.momentum[1]) * multiplicateurVecteur)]
                     else:
                         if reference == None:
-                            fleche = Fleche(corp.position, [corp.position[0] + corp.momentum[0], corp.position[1] + corp.momentum[1]], 10,
+                            fleche = Fleche(corp.position, [corp.position[0] + corp.momentum[0], corp.position[1] + corp.momentum[1]], 5,
                                         (abs(corp.couleur[0] -255), abs(corp.couleur[1] -255), abs(corp.couleur[2] -255)), 15)
                         else:
                             fleche = Fleche(corp.position, [corp.position[0] + corp.momentum[0] - reference.momentum[0], corp.position[1] + corp.momentum[1] - reference.momentum[1]], 10,

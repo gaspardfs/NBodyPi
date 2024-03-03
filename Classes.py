@@ -49,10 +49,14 @@ class Camera:
         return (position, echelle)
 
 
-    def EstVisible(self, PositionEcran):
-        if PositionEcran[0] < 0 or PositionEcran[1] < 0 or PositionEcran[0] > self.Dimensions[0] or PositionEcran[1] > self.Dimensions[1]:
-            return False
-        return True
+    def EstVisible(self, position):
+        if position[0] > self.position[0] - self.DimensionsSim[0] / 2 and \
+        position[0] < self.position[0] + self.DimensionsSim[0] / 2 and \
+        position[1] > self.position[1] - self.DimensionsSim[1] / 2 and \
+        position[1] < self.position[1] + self.DimensionsSim[1] / 2:
+            return True
+        return False
+
         
 
 class Sprite:
