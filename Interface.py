@@ -89,7 +89,7 @@ def Interface(queuePourInterface, queuePourJeu):
 
     def appuyer_chargerPreset(event):
         nonlocal i, rentree_combo_corp
-        directoire = filed.askopenfilename()
+        directoire = filed.askopenfilename(defaultextension="/Presets")
         if directoire != "":
             envoyerValeurMultiprocessing(directoire, 1)
             envoyerValeurMultiprocessing(0, 8)
