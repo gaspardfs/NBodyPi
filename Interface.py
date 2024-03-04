@@ -8,16 +8,16 @@ import sys
 
 def Interface(queuePourInterface, queuePourJeu):
     fenetre = tk.Tk()
-    fenetre.title("Home")
+    fenetre.title("Interface")
     
 
-    fenetre.geometry("750x300")
+    fenetre.geometry("670x300")
 
     #Création des boutons
-    btn_edit = tk.Button(fenetre, text = "Edition", width=46)
+    btn_edit = tk.Button(fenetre, text = "Edition", width=47)
     btn_edit.grid(column = 1, row = 0)
 
-    btn_sim = tk.Button(fenetre, text = "Simulation", width=46)
+    btn_sim = tk.Button(fenetre, text = "Simulation", width=47)
     btn_sim.grid(column = 2, row = 0)
 
     etat = 1
@@ -178,11 +178,12 @@ def Interface(queuePourInterface, queuePourJeu):
 
     def appuyer_enlever(event):
         recevoirMultiprocessing()
-        nonlocal i
+        nonlocal i, rentree_combo_corp
         try:
             Corps.pop(i)
             i = None
             appuyer_edit(None)
+            rentree_combo_corp = tk.StringVar(value="Selectionner un corps")
         except:
             print("Erreur de suprimement")
 
@@ -223,15 +224,15 @@ def Interface(queuePourInterface, queuePourJeu):
     
         edition_widget = tk.Frame(fenetre)
         
-        btn_ajouter= tk.Button(edition_widget, text = '+', width = 10)
+        btn_ajouter= tk.Button(edition_widget, text = 'Ajouter corps', width = 10)
         btn_ajouter.grid(column = 2, row = 2)
         btn_ajouter.bind("<Button-1>", appuyer_ajouter)
 
-        btn_enlever= tk.Button(edition_widget, text = '-', width = 10)
+        btn_enlever= tk.Button(edition_widget, text = 'Enlever corps', width = 10)
         btn_enlever.bind("<Button-1>", appuyer_enlever)
         btn_enlever.grid(column = 3, row = 2)
 
-        btn_reference = tk.Button(edition_widget, text = "Utiliser référence", width = 10)
+        btn_reference = tk.Button(edition_widget, text = "Utiliser réf.", width = 10)
         btn_reference.grid(column = 4, row = 2)
         btn_reference.bind("<Button-1>", appuyer_reference)
 
@@ -262,7 +263,7 @@ def Interface(queuePourInterface, queuePourJeu):
         label_masse = tk.Label(edition_widget, text = "Masse")
         label_masse.grid(column = 0, row = 8)
         
-        label_etapes = tk.Label(edition_widget, text = "Nb d'étapes")
+        label_etapes = tk.Label(edition_widget, text = "Nb. d'étapes")
         label_etapes.grid(column = 0, row = 14)
 
         label_nom = tk.Label(edition_widget, text = "Nom")
@@ -325,7 +326,7 @@ def Interface(queuePourInterface, queuePourJeu):
         
         champ_etapes = tk.Entry(edition_widget, width=10)
         champ_etapes.insert(0, str(nbEtapes)) 
-        champ_etapes.grid(column=1, row=13)
+        champ_etapes.grid(column=1, row=14)
 
         btn_act_trajectoires = tk.Button(edition_widget, text="Actualiser trajectoires", command= lambda: actualiser_trajectoires(champ_etapes.get()))
         btn_act_trajectoires.grid(column=2, row=14)

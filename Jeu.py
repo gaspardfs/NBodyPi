@@ -64,7 +64,7 @@ def Jeu(queuePourInterface, queuePourJeu):
     arriere_plan = pygame.Surface((1920, 1080))
     arriere_plan.fill("black")
     pygame.mouse.set_visible(1)
-    pygame.display.set_caption("Gravi Sim (Q/Esc pour sortir)")
+    pygame.display.set_caption("GravitSim")
 
     # Texte
     coordCamera = pygame.font.Font(pygame.font.get_default_font(), 14)
