@@ -13,7 +13,7 @@ Quand ouverte, l'interface d'édition nous permet de créer des corps et de conf
 
 Pour créer un corps, suffit appuyer `Ajouter corps`, pour l'enlever appuyer `Enlever corps`
 
-Quand un corps est selectonné dans la boîte combo, ses paramètres comme leur positionm, vitesse (momentum sous forme vectorielle), masse, nom, couleur sont configurables.
+Quand un corps est selectonné dans la boîte combo, ses paramètres comme leur position, vitesse (momentum sous forme vectorielle), masse, nom, couleur sont configurables.
 
 Quand le corps est configuré, appuyer le boutton vert actualiser qui sauvegarde les paramètres du corps. 
 
