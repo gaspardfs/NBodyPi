@@ -5,6 +5,13 @@
 ## Sur GravitSim
 GravitSim est une application qui simule des intéractions gravitationelles dans un espace 2D, tout en permettant l'utilisateur d'éditer l'environnement et les grandeurs physiques. L'application permet aussi de visualiser les trajectoires et les futures collisions des corps.
 
+## Installation
+Pour executer GravitSim, python3 doit être installé. 
+
+L'installation des modules se fait par `>> pip3 install -r requirements.txt` 
+
+L'execution du projet se fait par `>> python3 main.py`
+
 ## Fonctionnalités
 ### Interface d'édition
 L'interface d'édition a été faite avec le module Tkinter.
